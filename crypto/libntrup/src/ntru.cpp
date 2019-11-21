@@ -7,7 +7,7 @@
 bool
 supports_avx2()
 {
-  std::array< int, 4 > cpuinfo;
+  std::array< unsigned int, 4 > cpuinfo;
   __cpuid(0, cpuinfo[0], cpuinfo[1], cpuinfo[2], cpuinfo[3]);
   if (cpuinfo[0] < 7)
     return false;
