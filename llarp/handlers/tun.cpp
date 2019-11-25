@@ -980,6 +980,8 @@ namespace llarp
         {
           self->m_UserToNetworkPktQueue.Emplace(pkt);
         }
+        const auto now llarp::time_now_ms();
+        self->Pump(now);
         self->Flush();
         self->FlushToUser([self, tun](net::IPPacket &pkt) -> bool {
           if(!llarp_ev_tun_async_write(tun, pkt.Buffer()))
