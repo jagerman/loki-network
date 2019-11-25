@@ -51,8 +51,8 @@ namespace llarp
         tunif->get_fd_promise = nullptr;
         tunif->user           = this;
         // eh this shouldn't do anything on windows anyway
-        tunif->tick         = nullptr;
-        tunif->before_write = &tunifBeforeWrite;
+        tunif->tick         = &tunifBeforeWrite;
+        tunif->before_write = nullptr;
         tunif->recvpkt      = &tunifRecvPkt;
       }
     }
