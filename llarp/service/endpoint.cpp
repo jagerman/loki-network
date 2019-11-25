@@ -1088,7 +1088,6 @@ namespace llarp
         }
         m_state->m_SendQueue.clear();
       }
-      router->PumpLL();
     }
 
     bool
