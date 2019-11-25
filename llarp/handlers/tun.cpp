@@ -32,13 +32,6 @@ namespace llarp
       m_NetworkToUserPktQueue.Process(send);
     }
 
-    void
-    TunEndpoint::tunifTick(llarp_tun_io *tun)
-    {
-      auto *self = static_cast< TunEndpoint * >(tun->user);
-      LogicCall(self->m_router->logic(), [self]() { self->Flush(); });
-    }
-
     TunEndpoint::TunEndpoint(const std::string &nickname, AbstractRouter *r,
                              service::Context *parent, bool lazyVPN)
         : service::Endpoint(nickname, r, parent)
@@ -58,7 +51,7 @@ namespace llarp
         tunif->get_fd_promise = nullptr;
         tunif->user           = this;
         // eh this shouldn't do anything on windows anyway
-        tunif->tick         = &tunifTick;
+        tunif->tick         = nullptr;
         tunif->before_write = &tunifBeforeWrite;
         tunif->recvpkt      = &tunifRecvPkt;
       }
