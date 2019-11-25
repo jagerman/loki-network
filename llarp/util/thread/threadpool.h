@@ -19,7 +19,7 @@ struct llarp_threadpool
   Impl *impl;
 
   llarp_threadpool(int workers, llarp::string_view name,
-                   size_t queueLength = size_t{1024});
+                   size_t queueLength = size_t{1024 * 8});
 
   ~llarp_threadpool();
 
