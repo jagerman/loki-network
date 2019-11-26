@@ -306,6 +306,7 @@ namespace llarp
         self->m_ExitMap.ForEachValue(
             [](const auto &exit) { exit->FlushUpstream(); });
         self->Pump(self->Now());
+        self->m_router->PumpLL();
       };
       if(NetworkIsIsolated())
       {
@@ -826,7 +827,6 @@ namespace llarp
         }
         llarp::LogWarn(Name(), " did not flush packets");
       });
-      Router()->PumpLL();
     }
 
     bool
@@ -980,9 +980,7 @@ namespace llarp
         {
           self->m_UserToNetworkPktQueue.Emplace(pkt);
         }
-        const auto now = llarp::time_now_ms();
         self->Flush();
-        self->Pump(now);
         self->FlushToUser([self, tun](net::IPPacket &pkt) -> bool {
           if(!llarp_ev_tun_async_write(tun, pkt.Buffer()))
           {
