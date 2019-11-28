@@ -847,7 +847,7 @@ namespace libuv
     {
       if ((uv_now(&m_Impl) - last_time) > 1000)
       {
-        llarp::LogDebug("UV EVENT LOOP TICKS LAST SECOND: ", loop_run_count);
+        llarp::LogWarn("UV EVENT LOOP TICKS LAST SECOND: ", loop_run_count);
         loop_run_count = 0;
         last_time = uv_now(&m_Impl);
       }
