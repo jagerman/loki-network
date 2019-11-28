@@ -45,9 +45,9 @@ namespace llarp
     bool
     can_flush() const;
 
+    llarp_threadpool* const m_Thread;
    private:
     using ID_t = std::thread::id;
-    llarp_threadpool* const m_Thread;
     llarp_timer_context* const m_Timer;
     absl::optional< ID_t > m_ID;
     util::ContentionKiller m_Killer;
