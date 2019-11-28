@@ -185,6 +185,9 @@ namespace llarp
       HandlePlaintext(CryptoQueue_t msgs);
 
       void
+      ConsumePlaintext();
+
+      void
       HandleGotIntro(Packet_t pkt);
 
       void
