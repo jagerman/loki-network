@@ -268,7 +268,6 @@ namespace llarp
         });
         m_DecryptNext = nullptr;
       }
-      ConsumePlaintext();
     }
 
     bool
@@ -566,26 +565,20 @@ namespace llarp
         if(m_PlaintextQueue.empty() || m_PlaintextQueue.full())
         {
           LogicCall(m_Parent->logic(), [self = shared_from_this()]() {
-            self->ConsumePlaintext();
+            CryptoQueue_t pkts;
+            do
+            {
+              auto maybe = self->m_PlaintextQueue.tryPopFront();
+              if(not maybe.has_value())
+                break;
+              pkts.emplace_back(std::move(maybe.value()));
+            } while(true);
+            if(not pkts.empty())
+              self->HandlePlaintext(std::move(pkts));
           });
         }
         m_PlaintextQueue.pushBack(std::move(pkt));
       }
-    }
-
-    void
-    Session::ConsumePlaintext()
-    {
-      CryptoQueue_t pkts;
-      do
-      {
-        auto maybe = m_PlaintextQueue.tryPopFront();
-        if(not maybe.has_value())
-          break;
-        pkts.emplace_back(std::move(maybe.value()));
-      } while(true);
-      if(not pkts.empty())
-        HandlePlaintext(std::move(pkts));
     }
 
     void
