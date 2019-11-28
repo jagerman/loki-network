@@ -238,7 +238,7 @@ namespace llarp
       std::vector< RelayUpstreamMessage > msgs;
       do
       {
-        auto maybe = > m_UpstreamGather.tryPopFront();
+        auto maybe = m_UpstreamGather.tryPopFront();
         if(not maybe.has_value())
           break;
         msgs.emplace_back(maybe.value());
@@ -257,7 +257,7 @@ namespace llarp
       std::vector< RelayDownstreamMessage > msgs;
       do
       {
-        auto maybe = > m_DownstreamGather.tryPopFront();
+        auto maybe = m_DownstreamGather.tryPopFront();
         if(not maybe.has_value())
           break;
         msgs.emplace_back(maybe.value());
