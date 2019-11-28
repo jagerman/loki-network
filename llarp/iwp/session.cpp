@@ -37,9 +37,7 @@ namespace llarp
         , m_RemoteAddr(ai)
         , m_ChosenAI(ai)
         , m_RemoteRC(rc)
-        , m_PlaintextQueue(128)
     {
-      m_PlaintextQueue.enable();
       token.Zero();
       GotLIM = util::memFn(&Session::GotOutboundLIM, this);
       CryptoManager::instance()->shorthash(m_SessionKey,
@@ -52,9 +50,7 @@ namespace llarp
         , m_Parent(p)
         , m_CreatedAt{p->Now()}
         , m_RemoteAddr(from)
-        , m_PlaintextQueue(128)
     {
-      m_PlaintextQueue.enable();
       token.Randomize();
       GotLIM          = util::memFn(&Session::GotInboundLIM, this);
       const PubKey pk = m_Parent->GetOurRC().pubkey;
@@ -549,6 +545,7 @@ namespace llarp
     void
     Session::DecryptWorker(CryptoQueue_ptr msgs)
     {
+      CryptoQueue_ptr recvMsgs = std::make_shared< CryptoQueue_t >();
       for(auto& pkt : *msgs)
       {
         if(not DecryptMessageInPlace(pkt))
@@ -562,29 +559,18 @@ namespace llarp
                    " != ", LLARP_PROTO_VERSION);
           continue;
         }
-        if(m_PlaintextQueue.empty() || m_PlaintextQueue.full())
-        {
-          LogicCall(m_Parent->logic(), [self = shared_from_this()]() {
-            CryptoQueue_t pkts;
-            do
-            {
-              auto maybe = self->m_PlaintextQueue.tryPopFront();
-              if(not maybe.has_value())
-                break;
-              pkts.emplace_back(std::move(maybe.value()));
-            } while(true);
-            if(not pkts.empty())
-              self->HandlePlaintext(std::move(pkts));
-          });
-        }
-        m_PlaintextQueue.pushBack(std::move(pkt));
+        recvMsgs->emplace_back(std::move(pkt));
       }
+      LogDebug("decrypted ", recvMsgs->size(), " packets from ", m_RemoteAddr);
+      LogicCall(
+          m_Parent->logic(),
+          std::bind(&Session::HandlePlaintext, shared_from_this(), recvMsgs));
     }
 
     void
-    Session::HandlePlaintext(CryptoQueue_t msgs)
+    Session::HandlePlaintext(CryptoQueue_ptr msgs)
     {
-      for(auto& result : msgs)
+      for(auto& result : *msgs)
       {
         LogDebug("Command ", int(result[PacketOverhead + 1]));
         switch(result[PacketOverhead + 1])

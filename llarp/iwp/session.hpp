@@ -173,7 +173,6 @@ namespace llarp
       using CryptoQueue_ptr = std::shared_ptr< CryptoQueue_t >;
       CryptoQueue_ptr m_EncryptNext;
       CryptoQueue_ptr m_DecryptNext;
-      thread::Queue< Packet_t > m_PlaintextQueue;
 
       void
       EncryptWorker(CryptoQueue_ptr msgs);
@@ -182,7 +181,7 @@ namespace llarp
       DecryptWorker(CryptoQueue_ptr msgs);
 
       void
-      HandlePlaintext(CryptoQueue_t msgs);
+      HandlePlaintext(CryptoQueue_ptr msgs);
 
       void
       HandleGotIntro(Packet_t pkt);
