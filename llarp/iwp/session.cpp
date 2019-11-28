@@ -268,6 +268,7 @@ namespace llarp
         });
         m_DecryptNext = nullptr;
       }
+      ConsumePlaintext();
     }
 
     bool
