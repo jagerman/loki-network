@@ -173,9 +173,11 @@ namespace llarp
   void
   Router::PumpLL()
   {
-    if(_stopping.load())
+    static constexpr llarp_time_t PumpInterval = 25;
+    const auto now                             = Now();
+    if(_stopping.load() || _lastPump + PumpInterval >= now)
       return;
-
+    _lastPump = now;
     paths.PumpDownstream();
     paths.PumpUpstream();
 
