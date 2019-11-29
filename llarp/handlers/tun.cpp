@@ -37,7 +37,7 @@ namespace llarp
     {
       auto *self     = static_cast< TunEndpoint * >(tun->user);
       const auto now = self->Now();
-      if(self->FlushNow(now))
+      if(self->ShouldFlushNow(now))
       {
         self->m_LastFlushAt = now;
         LogicCall(self->m_router->logic(), [self]() { self->Flush(); });
