@@ -127,6 +127,7 @@ namespace llarp
   ILinkLayer::Pump()
   {
     std::unordered_set< RouterID, RouterID::Hash > closedSessions;
+    std::vector< std::shared_ptr< ILinkSession > > closedPending;
     auto _now = Now();
     {
       ACQUIRE_LOCK(Lock_t l, m_AuthedLinksMutex);
@@ -163,11 +164,7 @@ namespace llarp
         {
           LogInfo("pending session at ", itr->first, " timed out");
           // defer call so we can acquire mutexes later
-          auto self = itr->second->BorrowSelf();
-          LogicCall(m_Logic, [&, self]() {
-            this->HandleTimeout(self.get());
-            self->Close();
-          });
+          closedPending.emplace_back(std::move(itr->second));
           itr = m_Pending.erase(itr);
         }
       }
@@ -181,6 +178,10 @@ namespace llarp
           SessionClosed(r);
         }
       }
+    }
+    for(const auto& pending : closedPending)
+    {
+      HandleTimeout(pending.get());
     }
   }
 
