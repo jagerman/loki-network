@@ -248,28 +248,20 @@ namespace llarp
       // TODO: can we add util::thread::Queue::front() for move semantics here?
       MessageQueueEntry entry = outboundQueue.popFront();
 
-      MessageQueue *path_queue = nullptr;
-      if (entry.pathid != zeroID)
-      {
-        auto itr_pair =
-            outboundMessageQueues.emplace(entry.pathid, MessageQueue());
+      auto itr_pair =
+          outboundMessageQueues.emplace(entry.pathid, MessageQueue());
 
-        if(itr_pair.second && !entry.pathid.IsZero())
-        {
-          roundRobinOrder.push(entry.pathid);
-        }
-        path_queue = &itr_pair.first->second;
-      }
-      else
+      if(itr_pair.second && !entry.pathid.IsZero())
       {
-        path_queue = &nonRoutingMessageQueue;
+        roundRobinOrder.push(entry.pathid);
       }
 
-      if(path_queue->size() >= MAX_PATH_QUEUE_SIZE)
+      MessageQueue &path_queue = itr_pair.first->second;
+      if(path_queue.size() >= MAX_PATH_QUEUE_SIZE)
       {
-        path_queue->pop();  // head drop
+        path_queue.pop();  // head drop
       }
-      path_queue->push(std::move(entry));
+      path_queue.push(std::move(entry));
     }
   }
 
