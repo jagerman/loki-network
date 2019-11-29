@@ -118,7 +118,7 @@ namespace llarp
       RenegotiateSession() override;
 
       bool
-      ShouldPing(llarp_time_t now) const override;
+      ShouldPing() const override;
 
       util::StatusObject
       ExtractStatus() const override;
