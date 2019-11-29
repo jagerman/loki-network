@@ -45,6 +45,8 @@ namespace llarp
     bool
     can_flush() const;
 
+    llarp::thread::Queue< std::string > pendingJobStrings;
+
     llarp_threadpool* const m_Thread;
    private:
     using ID_t = std::thread::id;
