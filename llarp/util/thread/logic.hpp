@@ -48,6 +48,7 @@ namespace llarp
     llarp::thread::Queue< std::string > pendingJobStrings;
 
     llarp_threadpool* const m_Thread;
+    std::atomic< uint64_t > counter;
    private:
     using ID_t = std::thread::id;
     llarp_timer_context* const m_Timer;

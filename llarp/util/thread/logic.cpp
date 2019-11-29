@@ -19,6 +19,7 @@ namespace llarp
       , m_Thread(llarp_init_threadpool(1, "llarp-logic", sz))
       , m_Timer(llarp_init_timer())
   {
+    counter.store(0);
     llarp_threadpool_start(m_Thread);
     /// set thread id
     std::promise< ID_t > result;
@@ -81,7 +82,7 @@ namespace llarp
       metrics::TimerGuard g("logic",
                             std::string(TAG) + ":" + std::to_string(LINE));
 #endif
-      self->pendingJobStrings.popFront();
+      self->pendingJobStrings.tryPopFront();
       self->m_Killer.TryAccess(func);
     };
     if(can_flush())
@@ -90,6 +91,7 @@ namespace llarp
       f();
       return true;
     }
+    counter++;
     if(m_Thread->LooksFull(5))
     {
       LogWarnExplicit(TAG, LINE,
@@ -105,33 +107,35 @@ namespace llarp
     }
     else
     {
-      if (pendingJobStrings.tryPushBack(std::string(TAG) + ":" + std::to_string(LINE))
-          != llarp::thread::QueueReturn::Success)
-      {
-        std::stringstream to_print;
+      pendingJobStrings.tryPushBack(std::string(TAG) + ":" + std::to_string(LINE));
+    }
 
-        for (size_t i=0; i < 1000 && not pendingJobStrings.empty(); i++)
+    if (counter.load() >= 10000)
+    {
+      counter.store(0);
+      std::stringstream to_print;
+
+      for (size_t i=0; i < 1000 && not pendingJobStrings.empty(); i++)
+      {
+        auto to_append = pendingJobStrings.tryPopFront();
+        if (to_append.has_value())
         {
-          auto to_append = pendingJobStrings.tryPopFront();
-          if (to_append.has_value())
-          {
-            to_print << std::setw(30) << to_append.value();
-          }
-          else
-          {
-            break;
-          }
-          if (i % 4 == 3)
-          {
-            to_print << "\n";
-          }
-          else
-          {
-            to_print << " | ";
-          }
+          to_print << std::setw(30) << to_append.value();
         }
-        LogError(to_print.str());
+        else
+        {
+          break;
+        }
+        if (i % 4 == 3)
+        {
+          to_print << "\n";
+        }
+        else
+        {
+          to_print << " | ";
+        }
       }
+      LogError(to_print.str());
     }
     return ret;
 #undef TAG
