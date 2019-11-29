@@ -15,7 +15,8 @@ namespace llarp
   }
 
   Logic::Logic(size_t sz)
-      : m_Thread(llarp_init_threadpool(1, "llarp-logic", sz))
+      : pendingJobStrings(1000)
+      , m_Thread(llarp_init_threadpool(1, "llarp-logic", sz))
       , m_Timer(llarp_init_timer())
   {
     llarp_threadpool_start(m_Thread);
@@ -80,6 +81,7 @@ namespace llarp
       metrics::TimerGuard g("logic",
                             std::string(TAG) + ":" + std::to_string(LINE));
 #endif
+      self->pendingJobStrings.popFront();
       self->m_Killer.TryAccess(func);
     };
     if(can_flush())
@@ -100,6 +102,36 @@ namespace llarp
     if(not ret)
     {
       METRIC("dropped");
+    }
+    else
+    {
+      if (pendingJobStrings.tryPushBack(std::string(TAG) + ":" + std::to_string(LINE))
+          != llarp::thread::QueueReturn::Success)
+      {
+        std::stringstream to_print;
+
+        for (size_t i=0; i < 1000 && not pendingJobStrings.empty(); i++)
+        {
+          auto to_append = pendingJobStrings.tryPopFront();
+          if (to_append.has_value())
+          {
+            to_print << std::setw(30) << to_append.value();
+          }
+          else
+          {
+            break;
+          }
+          if (i % 4 == 3)
+          {
+            to_print << "\n";
+          }
+          else
+          {
+            to_print << " | ";
+          }
+        }
+        LogError(to_print.str());
+      }
     }
     return ret;
 #undef TAG
