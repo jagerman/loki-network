@@ -42,6 +42,9 @@ namespace llarp
     void
     remove_call(uint32_t id);
 
+    size_t
+    numPendingJobs() const;
+
     bool
     can_flush() const;
 
@@ -49,6 +52,7 @@ namespace llarp
 
     llarp_threadpool* const m_Thread;
     std::atomic< uint64_t > counter;
+
    private:
     using ID_t = std::thread::id;
     llarp_timer_context* const m_Timer;
@@ -68,5 +72,4 @@ namespace llarp
 #define LogicCall(l, ...) l->_traceLogicCall(__VA_ARGS__, 0, 0)
 #endif
 #endif
-
 #endif
