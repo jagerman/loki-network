@@ -657,7 +657,7 @@ namespace libuv
       m_Handle.data = this;
       m_Ticker.data = this;
       readpkt       = false;
-      last_tick = 0;
+      last_tick     = 0;
     }
 
     ~tun_glue() override
@@ -697,7 +697,7 @@ namespace libuv
     void
     Tick(uint64_t time)
     {
-      if ((time - last_tick) > 2) // only tick at most every 2 ms
+      if((time - last_tick) > 2)  // only tick at most every 2 ms
       {
         last_tick = time;
         if(m_Tun->before_write)
@@ -799,7 +799,7 @@ namespace libuv
     if(uv_loop_init(&m_Impl) == -1)
       return false;
 
-    last_time = 0;
+    last_time      = 0;
     loop_run_count = 0;
 
     m_Impl.data = this;
@@ -845,11 +845,11 @@ namespace libuv
   {
     if(m_Run)
     {
-      if ((uv_now(&m_Impl) - last_time) > 1000)
+      if((uv_now(&m_Impl) - last_time) > 1000)
       {
         llarp::LogWarn("UV EVENT LOOP TICKS LAST SECOND: ", loop_run_count);
         loop_run_count = 0;
-        last_time = uv_now(&m_Impl);
+        last_time      = uv_now(&m_Impl);
       }
       loop_run_count++;
 
