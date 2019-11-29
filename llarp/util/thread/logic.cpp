@@ -39,6 +39,12 @@ namespace llarp
     llarp_free_timer(m_Timer);
   }
 
+  size_t
+  Logic::numPendingJobs() const
+  {
+    return m_Thread->pendingJobs();
+  }
+
   bool
   Logic::queue_job(struct llarp_thread_job job)
   {
@@ -95,9 +101,9 @@ namespace llarp
     if(m_Thread->LooksFull(5))
     {
       LogErrorExplicit(TAG, LINE,
-                      "holy crap, we are trying to queue a job onto the logic "
-                      "thread but "
-                      "it looks full");
+                       "holy crap, we are trying to queue a job onto the logic "
+                       "thread but "
+                       "it looks full");
       METRIC("full");
       std::abort();
     }
@@ -108,18 +114,19 @@ namespace llarp
     }
     else
     {
-      pendingJobStrings.tryPushBack(std::string(TAG) + ":" + std::to_string(LINE));
+      pendingJobStrings.tryPushBack(std::string(TAG) + ":"
+                                    + std::to_string(LINE));
     }
 
-    if (counter.load() >= 10000)
+    if(counter.load() >= 10000)
     {
       counter.store(0);
       std::stringstream to_print;
 
-      for (size_t i=0; i < 1000 && not pendingJobStrings.empty(); i++)
+      for(size_t i = 0; i < 1000 && not pendingJobStrings.empty(); i++)
       {
         auto to_append = pendingJobStrings.tryPopFront();
-        if (to_append.has_value())
+        if(to_append.has_value())
         {
           to_print << std::setw(30) << to_append.value();
         }
@@ -127,7 +134,7 @@ namespace llarp
         {
           break;
         }
-        if (i % 4 == 3)
+        if(i % 4 == 3)
         {
           to_print << "\n";
         }
