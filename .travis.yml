@@ -40,6 +40,18 @@ matrix:
     os: osx
     osx_image: xcode10.2
     env: BUILD_TYPE=Release PATH="/usr/local/opt/ccache/libexec:$PATH"
+  - name: "make release (linux/gcc/arm64)"
+    arch: arm64
+    compiler: gcc
+    env: BUILD_TYPE=Release
+  - name: "make release (linux/gcc/s390x)"
+    arch: s390x
+    compiler: gcc
+    env: BUILD_TYPE=Release
+  - name: "make release (linux/gcc/ppc64le)"
+    arch: ppc64le
+    compiler: gcc
+    env: BUILD_TYPE=Release
 #  - name: "make iOS"
 #    os: osx
 #    osx_image: xcode10.2
