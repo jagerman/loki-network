@@ -195,7 +195,7 @@ script:
     elif [[ ! -z $DOCKER_FILE ]]; then
       docker build -f $DOCKER_FILE .;
     else
-      make DOWNLOAD_SODIUM=ON ${MAKE_TARGET:-test};
+      make -j2 DOWNLOAD_SODIUM=ON ${MAKE_TARGET:-test};
     fi
 
 after_script:
