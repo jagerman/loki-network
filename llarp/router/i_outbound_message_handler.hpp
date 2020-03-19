@@ -24,7 +24,7 @@ namespace llarp
 
   using SendStatusHandler = std::function< void(SendStatus) >;
 
-  static const size_t MAX_PATH_QUEUE_SIZE            = 40;
+  static const size_t MAX_PATH_QUEUE_SIZE            = 200;
   static const size_t MAX_OUTBOUND_QUEUE_SIZE        = 1000;
   static const size_t MAX_OUTBOUND_MESSAGES_PER_TICK = 100;
 
