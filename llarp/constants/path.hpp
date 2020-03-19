@@ -16,7 +16,7 @@ namespace llarp
     /// default path length
     constexpr std::size_t default_len = 4;
     /// pad messages to the nearest this many bytes
-    constexpr std::size_t pad_size = 128;
+    constexpr std::size_t pad_size = 16;
     /// default path lifetime in ms
     constexpr std::chrono::milliseconds default_lifetime = 20min;
     /// minimum into lifetime we will advertise
