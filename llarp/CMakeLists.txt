@@ -222,7 +222,6 @@ if(WITH_HIVE)
 endif()
 
 target_link_libraries(liblokinet PUBLIC cxxopts lokinet-platform lokinet-util lokinet-cryptography lokimq)
-
 if(BUILD_SHARED_LIBS)
   install(TARGETS lokinet-util lokinet-platform liblokinet LIBRARY DESTINATION lib)
   if(WIN32)
