@@ -173,7 +173,6 @@ add_library(liblokinet
   routing/path_latency_message.cpp
   routing/path_transfer_message.cpp
   routing/transfer_traffic_message.cpp
-  rpc/rpc.cpp
   service/address.cpp
   service/async_key_exchange.cpp
   service/context.cpp
@@ -220,7 +219,7 @@ if(WITH_HIVE)
   target_sources(liblokinet PRIVATE tooling/router_hive.cpp)
 endif()
 
-target_link_libraries(liblokinet PUBLIC cxxopts abyss lokinet-platform lokinet-util lokinet-cryptography)
+target_link_libraries(liblokinet PUBLIC cxxopts lokinet-platform lokinet-util lokinet-cryptography)
 
 if(BUILD_SHARED_LIBS)
   install(TARGETS lokinet-util lokinet-platform liblokinet LIBRARY DESTINATION lib)
