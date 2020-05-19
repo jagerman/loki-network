@@ -220,7 +220,7 @@ if(WITH_HIVE)
   target_sources(liblokinet PRIVATE tooling/router_hive.cpp)
 endif()
 
-target_link_libraries(liblokinet PUBLIC cxxopts lokinet-platform lokinet-util lokinet-cryptography)
+target_link_libraries(liblokinet PUBLIC cxxopts lokinet-platform lokinet-util lokinet-cryptography lokimq)
 
 if(BUILD_SHARED_LIBS)
   install(TARGETS lokinet-util lokinet-platform liblokinet LIBRARY DESTINATION lib)
