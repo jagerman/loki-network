@@ -17,17 +17,16 @@ matrix:
   - name: "make release (linux/gcc/s390x)"
     arch: s390x
     compiler: gcc
-    env: BUILD_TYPE=Release
+    env: BUILD_TYPE=Release CXX=g++-8 CC=gcc-8
     addons: &core_apt_addons
       apt:
         sources:  
           - deadsnakes
         packages:
-          - build-essential
+          - g++-8
           - cmake
           - curl
           - git
-          - libcap-dev
           - libcurl4-openssl-dev
           - libuv1-dev
           - ninja-build
@@ -37,7 +36,7 @@ matrix:
   - name: "make release (linux/gcc/ppc64le)"
     arch: ppc64le
     compiler: gcc
-    env: BUILD_TYPE=Release
+    env: BUILD_TYPE=Release CXX=g++-8 CC=gcc-8
     addons: *core_apt_addons
 #  - name: "make iOS"
 #    os: osx
