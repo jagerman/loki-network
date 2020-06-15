@@ -4,6 +4,7 @@
 #include <router/abstractrouter.hpp>
 #include <service/context.hpp>
 #include <catch2/catch.hpp>
+#include <mutex>
 
 /// make a llarp_main* with 1 endpoint that specifies a keyfile
 static llarp_main*
@@ -30,15 +31,17 @@ TEST_CASE("key backup bug regression test", "[regress]")
                                        std::optional<fs::path>{""},
                                        {std::nullopt}})
   {
+    std::mutex m;
     llarp::service::Address endpointAddress{};
     // try 10 start up and shut downs and see if our key changes or not
     for (size_t index = 0; index < 10; index++)
     {
       auto context = make_context(path);
-      REQUIRE(llarp_main_setup(context, false) == 0);
+      { std::lock_guard l{m}; REQUIRE(llarp_main_setup(context, false) == 0); }
       auto ctx = llarp::Context::Get(context);
-      ctx->CallSafe([ctx, index, &endpointAddress, &path]() {
+      ctx->CallSafe([ctx, index, &endpointAddress, &path, &m]() {
         auto ep = ctx->router->hiddenServiceContext().GetDefault();
+        std::lock_guard l{m};
         REQUIRE(ep != nullptr);
         if (index == 0)
         {
@@ -65,7 +68,7 @@ TEST_CASE("key backup bug regression test", "[regress]")
         // close the router "later" so llarp_main_run exits
         ctx->CloseAsync();
       });
-      REQUIRE(llarp_main_run(context, llarp_main_runtime_opts{}) == 0);
+      { std::lock_guard l{m}; REQUIRE(llarp_main_run(context, llarp_main_runtime_opts{}) == 0); }
       llarp_main_free(context);
     }
     // remove keys if provied
