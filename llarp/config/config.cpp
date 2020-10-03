@@ -445,7 +445,7 @@ namespace llarp
         });
 
     if (std::string best_if; GetBestNetIF(best_if))
-      m_InboundLinks.push_back(LinkInfoFromINIValues(best_if, DefaultPublicPort));
+      m_InboundLinks.push_back(LinkInfoFromINIValues(best_if, std::to_string(DefaultPublicPort)));
 
     conf.addUndeclaredHandler(
         "bind",
