@@ -26,8 +26,7 @@ namespace llarp
         std::string section_, std::string name_, bool required_, bool multiValued_);
 
     virtual ~OptionDefinitionBase()
-    {
-    }
+    {}
 
     /// Subclasses should provide their default value as a string
     ///
@@ -96,8 +95,7 @@ namespace llarp
         : OptionDefinitionBase(section_, name_, required_)
         , defaultValue(defaultValue_)
         , acceptor(acceptor_)
-    {
-    }
+    {}
 
     /// As above, but also takes a bool value for multiValued.
     OptionDefinition(
@@ -110,8 +108,7 @@ namespace llarp
         : OptionDefinitionBase(section_, name_, required_, multiValued_)
         , defaultValue(defaultValue_)
         , acceptor(acceptor_)
-    {
-    }
+    {}
 
     /// Returns the first parsed value, if available. Otherwise, provides the default value if the
     /// option is not required. Otherwise, returns an empty optional.
