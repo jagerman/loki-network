@@ -104,7 +104,7 @@ local windows_cross_pipeline(name, image,
 };
 
 // Builds a snapshot .deb on a debian-like system by merging into the debian/* or ubuntu/* branch
-local deb_builder(image, distro, distro_branch, arch='amd64', imaginary_repo=false) = {
+local deb_builder(image, distro, distro_branch, arch='amd64', imaginary_repo=true) = {
     kind: 'pipeline',
     type: 'docker',
     name: 'DEB (' + distro + (if arch == 'amd64' then '' else '/' + arch) + ')',
@@ -123,8 +123,8 @@ local deb_builder(image, distro, distro_branch, arch='amd64', imaginary_repo=fal
                 'apt-get install -y eatmydata',
                 'eatmydata apt-get install -y git devscripts equivs ccache git-buildpackage python3-dev' + (if imaginary_repo then ' gpg' else'')
                 ] + (if imaginary_repo then [ // Some distros need the imaginary.stream repo for backported sodium, etc.
-                    'echo deb https://deb.imaginary.stream $${distro} main >/etc/apt/sources.list.d/imaginary.stream.list',
-                    'curl -s https://deb.imaginary.stream/public.gpg | apt-key add -',
+                    'echo deb https://deb.loki.network $${distro} main >/etc/apt/sources.list.d/loki.list',
+                    'curl -so /etc/apt/trusted.gpg.d/loki.gpg https://deb.loki.network/pub.gpg',
                     'eatmydata apt-get update'
                 ] else []) + [
                 |||
@@ -226,7 +226,7 @@ local mac_builder(name, build_type='Release', werror=true, cmake_extra='', extra
 
     // Deb builds:
     deb_builder("debian:sid", "sid", "debian/sid"),
-    deb_builder("debian:buster", "buster", "debian/buster", imaginary_repo=true),
+    deb_builder("debian:buster", "buster", "debian/buster"),
     deb_builder("ubuntu:focal", "focal", "ubuntu/focal"),
     deb_builder("debian:sid", "sid", "debian/sid", arch='arm64'),
 
