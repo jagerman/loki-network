@@ -134,7 +134,7 @@ local deb_builder(image, distro, distro_branch, arch='amd64', imaginary_repo=fal
                         git checkout $${distro_branch}
                     fi
                 |||,
-                'git merge ${DRONE_COMMIT}',
+                'git merge --strategy-option theirs ${DRONE_COMMIT}',
                 'export DEBEMAIL="${DRONE_COMMIT_AUTHOR_EMAIL}" DEBFULLNAME="${DRONE_COMMIT_AUTHOR_NAME}"',
                 'gbp dch -S -s "HEAD^" --spawn-editor=never -U low',
                 'eatmydata mk-build-deps --install --remove --tool "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y"',
