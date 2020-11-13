@@ -186,5 +186,10 @@ local mac_builder(name, build_type='Release', werror=true, cmake_extra='', extra
 
 
 [
-    debian_pipeline("Debian buster (armhf)", "arm32v7/debian:buster", arch="arm64", cmake_extra='-DDOWNLOAD_SODIUM=ON'),
+    debian_pipeline("Debian buster (armhf) 1", "arm32v7/debian:buster", arch="arm64", cmake_extra='-DDOWNLOAD_SODIUM=ON'),
+    debian_pipeline("Debian buster (armhf) 2", "arm32v7/debian:buster", arch="arm64", cmake_extra='-DDOWNLOAD_SODIUM=ON'),
+    debian_pipeline("Debian buster (armhf) 3", "arm32v7/debian:buster", arch="arm64", cmake_extra='-DDOWNLOAD_SODIUM=ON'),
+    debian_pipeline("Debian buster (armhf) 4", "arm32v7/debian:buster", arch="arm64", cmake_extra='-DDOWNLOAD_SODIUM=ON'),
+    debian_pipeline("Debian buster (armhf) 5", "arm32v7/debian:buster", arch="arm64", cmake_extra='-DDOWNLOAD_SODIUM=ON'),
+    debian_pipeline("Debian buster (armhf) 6", "arm32v7/debian:buster", arch="arm64", cmake_extra='-DDOWNLOAD_SODIUM=ON'),
 ]
