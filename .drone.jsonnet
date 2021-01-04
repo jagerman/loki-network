@@ -213,7 +213,6 @@ local mac_builder(name, build_type='Release', werror=true, cmake_extra='', extra
 
     // ARM builds (ARM64 and armhf)
     debian_pipeline("Debian sid (ARM64)", "debian:sid", arch="arm64"),
-    debian_pipeline("Debian buster (armhf)", "arm32v7/debian:buster", arch="arm64", cmake_extra='-DDOWNLOAD_SODIUM=ON'),
     // Static AMD64 and armhf builds (get uploaded)
     debian_pipeline("Static (buster ARM64)", "debian:buster", arch="arm64", deps='g++ python3-dev',
                     cmake_extra='-DBUILD_STATIC_DEPS=ON -DBUILD_SHARED_LIBS=OFF -DSTATIC_LINK=ON ' +
