@@ -774,7 +774,9 @@ namespace llarp
             const llarp_buffer_t buf(msg.m_Data);
             m_Parent->HandleMessage(this, buf);
             if (m_ReplayFilter.emplace(rxid, m_Parent->Now()).second)
-              m_SendMACKs.emplace(rxid);
+            {
+              EncryptAndSend(msg.ACKS());
+            }
             m_RXMsgs.erase(rxid);
           }
         }
@@ -826,7 +828,9 @@ namespace llarp
           const llarp_buffer_t buf(msg.m_Data);
           m_Parent->HandleMessage(this, buf);
           if (m_ReplayFilter.emplace(itr->first, m_Parent->Now()).second)
-            m_SendMACKs.emplace(itr->first);
+          {
+            EncryptAndSend(msg.ACKS());
+          }
         }
         else
         {
