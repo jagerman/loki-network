@@ -188,7 +188,7 @@ namespace llarp
       /// maps rxid to time recieved
       std::unordered_map<uint64_t, llarp_time_t> m_ReplayFilter;
       /// rx messages to send in next round of multiacks
-      std::priority_queue<uint64_t> m_SendMACKs;
+      std::priority_queue<uint64_t, std::vector<uint64_t>, std::greater<uint64_t>> m_SendMACKs;
 
       using CryptoQueue_t = std::list<Packet_t>;
       using CryptoQueue_ptr = std::shared_ptr<CryptoQueue_t>;
