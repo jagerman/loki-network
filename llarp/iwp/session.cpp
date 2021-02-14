@@ -770,14 +770,7 @@ namespace llarp
                 return;
               }
             }
-            auto msg = std::move(itr->second);
-            const llarp_buffer_t buf(msg.m_Data);
-            m_Parent->HandleMessage(this, buf);
-            if (m_ReplayFilter.emplace(rxid, m_Parent->Now()).second)
-            {
-              EncryptAndSend(msg.ACKS());
-            }
-            m_RXMsgs.erase(rxid);
+            HandleRecvMsgCompleted(itr->second);
           }
         }
         else
@@ -824,20 +817,32 @@ namespace llarp
       {
         if (itr->second.Verify())
         {
-          auto msg = std::move(itr->second);
-          const llarp_buffer_t buf(msg.m_Data);
-          m_Parent->HandleMessage(this, buf);
-          if (m_ReplayFilter.emplace(itr->first, m_Parent->Now()).second)
-          {
-            EncryptAndSend(msg.ACKS());
-          }
+          HandleRecvMsgCompleted(itr->second);
         }
         else
         {
           LogError("hash mismatch for message ", itr->first);
         }
-        m_RXMsgs.erase(itr);
       }
+    }
+
+    void
+    Session::HandleRecvMsgCompleted(const InboundMessage& msg)
+    {
+      /// should we send a multiack?
+      constexpr bool UseMACK = false;
+
+      const auto rxid = msg.m_MsgID;
+      if (m_ReplayFilter.emplace(rxid, m_Parent->Now()).second)
+      {
+        const llarp_buffer_t buf(msg.m_Data);
+        m_Parent->HandleMessage(this, buf);
+        if (UseMACK)
+          m_SendMACKs.emplace(rxid);
+        else
+          EncryptAndSend(msg.ACKS());
+      }
+      m_RXMsgs.erase(rxid);
     }
 
     void
