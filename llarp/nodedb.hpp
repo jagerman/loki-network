@@ -19,8 +19,6 @@
 
 namespace llarp
 {
-  class Logic;
-
   class NodeDB
   {
     struct Entry
