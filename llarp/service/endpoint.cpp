@@ -1031,9 +1031,7 @@ namespace llarp
       }
       else
       {
-        Router()->loop()->call([h = std::move(hook)] {
-          h({AuthResultCode::eAuthAccepted, "OK"});
-        });
+        Router()->loop()->call([h = std::move(hook)] { h({AuthResultCode::eAuthAccepted, "OK"}); });
       }
     }
 
