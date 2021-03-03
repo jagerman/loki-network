@@ -241,7 +241,9 @@ namespace llarp
     {
       if (m_UpstreamQueue && not m_UpstreamQueue->empty())
       {
+        LogWarn("queueing upstream flush");
         r->QueueWork([self = shared_from_this(), data = std::move(m_UpstreamQueue), r]() mutable {
+            LogWarn("doing queued upstream flush");
           self->UpstreamWork(std::move(data), r);
         });
       }
@@ -253,7 +255,9 @@ namespace llarp
     {
       if (m_DownstreamQueue && not m_DownstreamQueue->empty())
       {
+        LogWarn("queueing upstream flush");
         r->QueueWork([self = shared_from_this(), data = std::move(m_DownstreamQueue), r]() mutable {
+            LogWarn("doing queued upstream flush");
           self->DownstreamWork(std::move(data), r);
         });
       }
