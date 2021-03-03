@@ -639,6 +639,10 @@ namespace llarp
     std::optional<std::vector<RouterContact>>
     Endpoint::GetHopsForBuild()
     {
+      RouterID canada2;
+      canada2.FromString("55fxdnig4eyeuffkwsw3x37bb7weuby1xtj13ggcwamghctjs9so.snode");
+      return GetHopsForBuildWithEndpoint(canada2);
+      /*
       std::unordered_set<RouterID> exclude;
       ForEachPath([&exclude](auto path) { exclude.insert(path->Endpoint()); });
       const auto maybe = m_router->nodedb()->GetRandom(
@@ -646,6 +650,7 @@ namespace llarp
       if (not maybe.has_value())
         return std::nullopt;
       return GetHopsForBuildWithEndpoint(maybe->pubkey);
+      */
     }
 
     std::optional<std::vector<RouterContact>>
