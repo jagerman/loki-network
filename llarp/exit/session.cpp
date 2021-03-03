@@ -182,6 +182,7 @@ namespace llarp
     bool
     BaseSession::HandleTraffic(llarp::path::Path_ptr, const llarp_buffer_t& buf, uint64_t counter)
     {
+        LogWarn(__func__);
       if (m_WritePacket)
       {
         llarp::net::IPPacket pkt;
