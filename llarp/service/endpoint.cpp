@@ -639,9 +639,13 @@ namespace llarp
     std::optional<std::vector<RouterContact>>
     Endpoint::GetHopsForBuild()
     {
-      RouterID canada2;
-      canada2.FromString("55fxdnig4eyeuffkwsw3x37bb7weuby1xtj13ggcwamghctjs9so.snode");
-      return GetHopsForBuildWithEndpoint(canada2);
+      RouterID pivot;
+      pivot.FromString(
+              llarp::randint() % 2
+              ? "55fxdnig4eyeuffkwsw3x37bb7weuby1xtj13ggcwamghctjs9so.snode" // lokinet-canada2.imaginary.stream
+              : "55fxnu4gopmp57krnt1q8czxouam3dgshcioqrskft4c5wgzadmy.snode" // lokinet-london1.imaginary.stream
+              );
+      return GetHopsForBuildWithEndpoint(pivot);
       /*
       std::unordered_set<RouterID> exclude;
       ForEachPath([&exclude](auto path) { exclude.insert(path->Endpoint()); });
