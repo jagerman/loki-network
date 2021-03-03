@@ -205,12 +205,16 @@ namespace llarp
     bool
     BaseSession::QueueUpstreamTraffic(llarp::net::IPPacket pkt, const size_t N)
     {
+      LogWarn("queue upstream traffic");
       const auto pktbuf = pkt.ConstBuffer();
       const llarp_buffer_t& buf = pktbuf;
       auto& queue = m_Upstream[buf.sz / N];
       // queue overflow
       if (queue.size() >= MaxUpstreamQueueLength)
+      {
+        LogWarn("queue overflow: ", queue.size(), " >= ", MaxUpstreamQueueLength);
         return false;
+      }
       if (queue.size() == 0)
       {
         queue.emplace_back();
@@ -253,6 +257,7 @@ namespace llarp
     bool
     BaseSession::FlushUpstream()
     {
+      LogWarn("Flush upstream");
       auto now = m_router->Now();
       auto path = PickRandomEstablishedPath(llarp::path::ePathRoleExit);
       if (path)
