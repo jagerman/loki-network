@@ -1122,7 +1122,7 @@ namespace llarp
 #else
     _loop->set_pump_function([this] { PumpLL(); });
 #endif
-    _loop->call_every(ROUTER_TICK_INTERVAL, weak_from_this(), [this] { Tick(); });
+    _loop->call_every(5ms, weak_from_this(), [this] { Tick(); });
     _running.store(true);
     _startedAt = Now();
 #if defined(WITH_SYSTEMD)
