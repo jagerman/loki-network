@@ -201,6 +201,7 @@ namespace llarp
           other->FlushDownstream(r);
         }
         m_FlushOthers.clear();
+        r->loop()->wakeup();
       }
       else
       {
@@ -215,8 +216,8 @@ namespace llarp
               info.upstream);
           r->SendToOrQueue(info.upstream, &msg);
         }
+        r->linkManager().PumpLinks();
       }
-      r->linkManager().PumpLinks();
     }
 
     void
@@ -455,7 +456,6 @@ namespace llarp
       if (path->HandleDownstream(buf, msg.Y, r))
       {
         m_FlushOthers.emplace(path);
-        r->loop()->wakeup();
         return true;
       }
       return SendRoutingMessage(discarded, r);
