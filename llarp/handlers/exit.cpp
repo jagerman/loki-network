@@ -449,12 +449,14 @@ namespace llarp
     void
     ExitEndpoint::OnInetPacket(net::IPPacket pkt)
     {
+        LogWarn(__func__);
       m_InetToNetwork.Emplace(std::move(pkt));
     }
 
     bool
     ExitEndpoint::QueueSNodePacket(const llarp_buffer_t& buf, huint128_t from)
     {
+        LogWarn(__func__);
       net::IPPacket pkt;
       if (!pkt.Load(buf))
         return false;
