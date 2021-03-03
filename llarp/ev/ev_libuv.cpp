@@ -129,7 +129,10 @@ namespace llarp::uv
     m_nextID.store(0);
     if (!(m_WakeUp = m_Impl->resource<uvw::AsyncHandle>()))
       throw std::runtime_error{"Failed to create libuv async"};
-    m_WakeUp->on<uvw::AsyncEvent>([this](const auto&, auto&) { tick_event_loop(); });
+    //m_WakeUp->on<uvw::AsyncEvent>([this](const auto&, auto&) { tick_event_loop(); });
+    auto debug_timer = m_Impl->resource<uvw::TimerHandle>();
+    debug_timer->on<uvw::TimerEvent>([this](const auto&, auto&) { tick_event_loop(); });
+    debug_timer->start(5ms, 5ms);
   }
 
   bool
