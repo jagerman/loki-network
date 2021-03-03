@@ -829,7 +829,8 @@ namespace llarp
         LogInfo(Name(), " has ipv6 address ", m_OurIPv6);
       }
 
-      Router()->loop()->add_ticker([this] { Flush(); });
+      //Router()->loop()->add_ticker([this] { Flush(); });
+      Router()->loop()->call_every(5ms, weak_from_this(), [this] { Flush(); });
 
       if (m_OnUp)
       {
