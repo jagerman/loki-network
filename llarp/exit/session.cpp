@@ -258,7 +258,6 @@ namespace llarp
     bool
     BaseSession::FlushUpstream()
     {
-      LogWarn("Flush upstream");
       auto now = m_router->Now();
       auto path = PickRandomEstablishedPath(llarp::path::ePathRoleExit);
       if (path)
