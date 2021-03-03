@@ -455,6 +455,7 @@ namespace llarp
       if (path->HandleDownstream(buf, msg.Y, r))
       {
         m_FlushOthers.emplace(path);
+        r->loop()->wakeup();
         return true;
       }
       return SendRoutingMessage(discarded, r);
