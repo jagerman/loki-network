@@ -135,7 +135,7 @@ namespace llarp
         msg.Y = ev.second ^ nonceXOR;
         CryptoManager::instance()->xchacha20(buf, pathKey, ev.second);
         msg.X = buf;
-        llarp::LogDebug(
+        llarp::LogWarn(
             "relay ",
             msg.X.size(),
             " bytes downstream from ",
@@ -206,7 +206,7 @@ namespace llarp
       {
         for (const auto& msg : msgs)
         {
-          llarp::LogDebug(
+          llarp::LogWarn(
               "relay ",
               msg.X.size(),
               " bytes upstream from ",
@@ -241,9 +241,9 @@ namespace llarp
     {
       if (m_UpstreamQueue && not m_UpstreamQueue->empty())
       {
-        LogWarn("queueing upstream flush");
+        LogError("queueing upstream flush");
         r->QueueWork([self = shared_from_this(), data = std::move(m_UpstreamQueue), r]() mutable {
-            LogWarn("doing queued upstream flush");
+            LogError("doing queued upstream flush");
           self->UpstreamWork(std::move(data), r);
         });
       }
@@ -255,9 +255,9 @@ namespace llarp
     {
       if (m_DownstreamQueue && not m_DownstreamQueue->empty())
       {
-        LogWarn("queueing upstream flush");
+        LogError("queueing downstream flush");
         r->QueueWork([self = shared_from_this(), data = std::move(m_DownstreamQueue), r]() mutable {
-            LogWarn("doing queued upstream flush");
+            LogError("doing queued downstream flush");
           self->DownstreamWork(std::move(data), r);
         });
       }
