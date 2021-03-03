@@ -345,7 +345,7 @@ namespace llarp
       }
       if (m_NextIntro.router.IsZero())
         return std::nullopt;
-      return GetHopsAlignedToForBuild(m_NextIntro.router);
+      return GetHopsAlignedToForBuild(m_NextIntro.router, m_Endpoint->SnodeBlacklist());
     }
 
     bool
