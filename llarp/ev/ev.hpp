@@ -84,9 +84,10 @@ namespace llarp
     void
     call(Callable&& f)
     {
+        /*
       if (inEventLoop())
         f();
-      else
+      else*/
         call_soon(std::forward<Callable>(f));
     }
 
