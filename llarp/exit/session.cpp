@@ -347,6 +347,7 @@ namespace llarp
     void
     SNodeSession::SendPacketToRemote(const llarp_buffer_t& buf)
     {
+        LogWarn(__func__);
       net::IPPacket pkt;
       if (not pkt.Load(buf))
         return;
@@ -357,6 +358,7 @@ namespace llarp
     void
     ExitSession::SendPacketToRemote(const llarp_buffer_t& buf)
     {
+        LogWarn(__func__);
       net::IPPacket pkt;
       if (not pkt.Load(buf))
         return;
