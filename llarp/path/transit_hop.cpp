@@ -457,6 +457,7 @@ namespace llarp
       if (path->HandleDownstream(buf, msg.Y, r))
       {
         m_FlushOthers.emplace(path);
+        LogError("done PTM via HandleDownstream if");
         return true;
       }
         LogError("done PTM");
