@@ -135,6 +135,7 @@ namespace llarp
       bool m_ShouldInitTun;
       std::string m_Name;
       bool m_PermitExit;
+      std::shared_ptr<int> m_FlusherKeepalive;
       std::unordered_map<PathID_t, PubKey, PathID_t::Hash> m_Paths;
 
       std::unordered_map<PubKey, exit::Endpoint*, PubKey::Hash> m_ChosenExits;

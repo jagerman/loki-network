@@ -319,7 +319,9 @@ namespace llarp
           return false;
         }
 
-        GetRouter()->loop()->add_ticker([this] { Flush(); });
+        m_FlusherKeepalive = std::make_shared<int>(0);
+        GetRouter()->loop()->call_every(5ms, m_FlusherKeepalive, [this] { Flush(); });
+        //GetRouter()->loop()->add_ticker([this] { Flush(); });
 
         llarp::LogInfo("Trying to start resolver ", m_LocalResolverAddr.toString());
         return m_Resolver->Start(m_LocalResolverAddr.createSockAddr(), m_UpstreamResolvers);
