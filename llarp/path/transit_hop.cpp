@@ -435,6 +435,7 @@ namespace llarp
     TransitHop::HandlePathTransferMessage(
         const llarp::routing::PathTransferMessage& msg, AbstractRouter* r)
     {
+        LogError("handle PTM");
       auto path = r->pathContext().GetPathForTransfer(msg.P);
       llarp::routing::DataDiscardMessage discarded(msg.P, msg.S);
       if (path == nullptr || msg.T.F != info.txID)
@@ -458,6 +459,7 @@ namespace llarp
         m_FlushOthers.emplace(path);
         return true;
       }
+        LogError("done PTM");
       return SendRoutingMessage(discarded, r);
     }
 
