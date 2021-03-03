@@ -103,7 +103,7 @@ namespace llarp::uv
   void
   Loop::tick_event_loop()
   {
-    llarp::LogTrace("ticking event loop.");
+    llarp::LogWarn("ticking event loop.");
     FlushLogic();
     PumpLL();
     auto& log = llarp::LogContext::Instance();
