@@ -12,7 +12,8 @@
 #include <unordered_set>
 #include <map>
 
-extern "C" {
+extern "C"
+{
 #include <ngtcp2/ngtcp2.h>
 #include <sodium/randombytes.h>
 }
