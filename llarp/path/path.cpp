@@ -17,6 +17,7 @@
 #include <llarp/tooling/path_event.hpp>
 
 #include <deque>
+#include <queue>
 
 namespace llarp
 {
@@ -529,16 +530,14 @@ namespace llarp
     {
       for (const auto& msg : msgs)
       {
-        const llarp_buffer_t buf(msg.X);
+        const llarp_buffer_t buf{msg.X};
         m_RXRate += buf.sz;
-        if (!HandleRoutingMessage(buf, r))
+        if (HandleRoutingMessage(buf, r))
         {
-          LogWarn("failed to handle downstream message");
-          continue;
+          r->loop()->wakeup();
+          m_LastRecvMessage = r->Now();
         }
-        m_LastRecvMessage = r->Now();
       }
-      FlushUpstream(r);
     }
 
     bool
@@ -597,6 +596,7 @@ namespace llarp
         buf.sz = pad_size;
       }
       buf.cur = buf.base;
+      LogDebug("send routing message ", msg.S, " with ", buf.sz, " bytes to endpoint ", Endpoint());
       return HandleUpstream(buf, N, r);
     }
 
@@ -635,6 +635,7 @@ namespace llarp
         // send path latency test
         routing::PathLatencyMessage latency;
         latency.T = randint();
+        latency.S = NextSeqNo();
         m_LastLatencyTestID = latency.T;
         m_LastLatencyTestTime = now;
         if (!SendRoutingMessage(latency, r))
