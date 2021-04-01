@@ -1353,4 +1353,15 @@ namespace llarp
     return def.generateINIConfig(true);
   }
 
+  std::shared_ptr<Config>
+  Config::EmbeddedConfig()
+  {
+    auto config = std::make_shared<Config>(fs::current_path());
+    config->Load();
+    config->logging.m_logLevel = eLogNone;
+    config->api.m_enableRPCServer = false;
+    config->network.m_endpointType = "null";
+    return config;
+  }
+
 }  // namespace llarp
