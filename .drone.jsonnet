@@ -230,7 +230,7 @@ local mac_builder(name, build_type='Release', werror=true, cmake_extra='', extra
                     cmake_extra='-DCMAKE_C_COMPILER=clang-11 -DCMAKE_CXX_COMPILER=clang++-11 '),
 */
     debian_pipeline("clang-12/libc++-12 (Debug)", docker_base+'debian-sid',
-                    deps='clang-12 libc++-12-dev llvm-12-dev lld-12 '+default_deps_nocxx, build_type='Debug',
+                    deps='clang-12 libc++-12-dev libc++abi-12-dev llvm-12-dev lld-12 '+default_deps_nocxx, build_type='Debug',
                     cmake_extra='-DCMAKE_C_COMPILER=clang-12 -DCMAKE_CXX_COMPILER=clang++-12 -DCMAKE_CXX_FLAGS="-stdlib=libc++" ' +
                         '-DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld" -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld" -DCMAKE_MODULE_LINKER_FLAGS="-fuse-ld=lld"'),
 /*
