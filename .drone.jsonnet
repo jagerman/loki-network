@@ -227,6 +227,10 @@ local mac_builder(name, build_type='Release', werror=true, cmake_extra='', extra
     debian_pipeline("Debian sid/Debug (amd64)", "debian:sid", build_type='Debug'),
     debian_pipeline("Debian sid/clang-11 (amd64)", docker_base+'debian-sid', deps='clang-11 '+default_deps_nocxx,
                     cmake_extra='-DCMAKE_C_COMPILER=clang-11 -DCMAKE_CXX_COMPILER=clang++-11 '),
+    debian_pipeline("clang-12/libc++-12 (Debug)", docker_base+'debian-sid',
+                    deps='clang-12 libc++-12-dev llvm-12-dev lld-12 '+default_deps_nocxx, build_type='Debug',
+                    cmake_extra='-DCMAKE_CXX_COMPILER=clang-12 -DCMAKE_CXX_COMPILER=clang++-12 -DCMAKE_CXX_FLAGS="-stdlib=libc++" ' +
+                        '-DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld" -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld" -DCMAKE_MODULE_LINKER_FLAGS="-fuse-ld=lld"'),
     debian_pipeline("Debian buster (i386)", "i386/debian:buster", cmake_extra='-DDOWNLOAD_SODIUM=ON'),
     debian_pipeline("Ubuntu focal (amd64)", docker_base+'ubuntu-focal'),
     debian_pipeline("Ubuntu bionic (amd64)", "ubuntu:bionic", deps='g++-8 ' + default_deps_nocxx,
@@ -275,7 +279,6 @@ local mac_builder(name, build_type='Release', werror=true, cmake_extra='', extra
 
     // Macos builds:
     mac_builder('macOS (Release)'),
-    mac_builder('macOS (Debug)', build_type='Debug'),
     mac_builder('macOS (Static)', cmake_extra='-DBUILD_STATIC_DEPS=ON -DBUILD_SHARED_LIBS=OFF -DSTATIC_LINK=ON -DDOWNLOAD_SODIUM=FORCE -DDOWNLOAD_CURL=FORCE -DDOWNLOAD_UV=FORCE',
                 extra_cmds=[
                     '../contrib/ci/drone-check-static-libs.sh',
