@@ -223,8 +223,8 @@ local mac_builder(name, build_type='Release', werror=true, cmake_extra='', extra
     },
 
     // Various debian builds
-    debian_pipeline("Debian sid (amd64)", "debian:sid"),
-    debian_pipeline("Debian sid/Debug (amd64)", "debian:sid", build_type='Debug'),
+    debian_pipeline("Debian sid (amd64)", docker_base+"debian-sid"),
+    debian_pipeline("Debian sid/Debug (amd64)", docker_base+"debian-sid", build_type='Debug'),
     debian_pipeline("Debian sid/clang-11 (amd64)", docker_base+'debian-sid', deps='clang-11 '+default_deps_nocxx,
                     cmake_extra='-DCMAKE_C_COMPILER=clang-11 -DCMAKE_CXX_COMPILER=clang++-11 '),
     debian_pipeline("clang-12/libc++-12 (Debug)", docker_base+'debian-sid',
@@ -237,7 +237,7 @@ local mac_builder(name, build_type='Release', werror=true, cmake_extra='', extra
                     cmake_extra='-DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8', loki_repo=true),
 
     // ARM builds (ARM64 and armhf)
-    debian_pipeline("Debian sid (ARM64)", "debian:sid", arch="arm64"),
+    debian_pipeline("Debian sid (ARM64)", docker_base+"debian-sid", arch="arm64"),
     debian_pipeline("Debian buster (armhf)", "arm32v7/debian:buster", arch="arm64", cmake_extra='-DDOWNLOAD_SODIUM=ON'),
     // Static armhf build (gets uploaded)
     debian_pipeline("Static (buster armhf)", "arm32v7/debian:buster", arch="arm64", deps='g++ python3-dev automake libtool',
