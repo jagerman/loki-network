@@ -24,7 +24,7 @@ BuildRequires:  libsqlite3x-devel
 
 Patch1: version-as-rpm-version.patch
 
-Requires lokinet-bin = %{version}-%{release}
+Requires: lokinet-bin = %{version}-%{release}
 %{?systemd_requires}
 
 %description
