@@ -55,7 +55,7 @@ of a running lokinet instance.
 
 %prep
 
-%autosetup
+%autosetup -p1
 
 %build
 
