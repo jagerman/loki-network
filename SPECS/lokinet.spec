@@ -36,7 +36,8 @@ connect to lokinet as a client or SNapp.
 %package bin
 Summary: Lokinet anonymous, decentralized overlay network -- binaries
 
-%description
+%description bin
+
 This package contains the common binaries for lokinet packages.  Most users will
 want to install the lokinet package rather than this one to run lokinet as a
 system service.
@@ -46,6 +47,11 @@ Summary: lokinetmon monitoring tool for lokinet
 Requires: python3
 Requires: python3-zmq
 Recommends: lokinet
+
+%description monitor
+
+This package contains the lokinetmon command-line tool for advanced monitoring
+of a running lokinet instance.
 
 %prep
 

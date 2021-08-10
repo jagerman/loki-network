@@ -28,6 +28,7 @@ local rpm_pipeline(image, buildarch='amd64', rpmarch='x86_64', jobs=6) = {
                 'echo "Building on ${DRONE_STAGE_MACHINE}"',
                 dnf(rpmarch) + 'distro-sync',
                 dnf(rpmarch) + 'install rpm-build git-archive-all dnf-plugins-core ccache',
+                dnf(rpmarch) + 'config-manager --add-repo https://rpm.oxen.io/fedora/oxen.repo',
                 'pkg_src_base="$(rpm -q --queryformat=\'%{NAME}-%{VERSION}\n\' --specfile SPECS/lokinet.spec | head -n 1)"',
                 'git-archive-all --prefix $pkg_src_base/ SOURCES/$pkg_src_base.src.tar.gz',
                 dnf(rpmarch) + 'builddep --spec SPECS/lokinet.spec',
