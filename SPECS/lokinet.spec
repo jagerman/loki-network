@@ -17,11 +17,15 @@ BuildRequires:  oxenmq-devel
 BuildRequires:  unbound-devel
 BuildRequires:  libsodium-devel
 BuildRequires:  systemd-devel
+BuildRequires:  systemd-rpm-macros
 BuildRequires:  libcurl-devel
 BuildRequires:  jemalloc-devel
 BuildRequires:  libsqlite3x-devel
 
 Patch1: version-as-rpm-version.patch
+
+Requires lokinet-bin = %{version}-%{release}
+%{?systemd_requires}
 
 %description
 
@@ -77,7 +81,9 @@ of a running lokinet instance.
 
 %cmake_install
 
-cp --preserve=mode contrib/py/admin/lokinetmon %{_bindir}
+install -m755 contrib/py/admin/lokinetmon $RPM_BUILD_ROOT/%{_bindir}/
+install -m644 SOURCES/lokinet.service $RPM_BUILD_ROOT/%{_unitdir}/lokinet.service
+install -m644 contrib/systemd-resolved
 
 %files
 
@@ -94,6 +100,48 @@ cp --preserve=mode contrib/py/admin/lokinetmon %{_bindir}
 
 %{_bindir}/lokinetmon
 
+%pre bin
+
+
+# Create the _lokinet/_loki user/group
+if ! getent group _loki >/dev/null; then
+    groupadd --system _loki
+fi
+if ! getent passwd _lokinet >/dev/null; then
+    useradd --badnames --system --home-dir /var/lib/lokinet --group _loki --comment "Lokinet system user" _lokinet
+fi
+
+# Make sure the _lokinet user is part of the _loki group (in case it already existed)
+if ! id -Gn _lokinet | grep -qw _loki; then
+    usermod _lokinet -g _loki
+fi
+
+%post
+
+datadir=/var/lib/lokinet
+mkdir -p $datadir
+chown _lokinet:_loki $datadir
+
+if ! [ -e /var/lib/lokinet/bootstrap.signed ]; then
+    /usr/bin/lokinet-bootstrap lokinet /var/lib/lokinet/bootstrap.signed
+    chown _lokinet:_loki /var/lib/lokinet/bootstrap.signed
+fi
+
+if ! [ -e /etc/loki/lokinet.ini ]; then
+    /usr/bin/lokinet -g /etc/loki/lokinet.ini
+    chmod 640 /etc/loki/lokinet.ini
+    chown _lokinet:_loki /etc/loki/lokinet.ini
+    ln -sf /etc/loki/lokinet.ini /var/lib/lokinet/lokinet.ini
+fi
+
+%systemd_post lokinet.service
+
+%preun
+%systemd_preun lokinet.service
+
+%postun
+%systemd_postun lokinet.service
+
 %changelog
 * Tue Aug 10 2021 Jason Rhinelander <jason@imaginary.ca> - 0.9.5-3
 - Updated for rpm.oxen.io packaging
@@ -103,4 +151,4 @@ cp --preserve=mode contrib/py/admin/lokinetmon %{_bindir}
 - Build with systemd-resolved and binary lokinet-bootstrap
 
 * Sun Mar 07 2021 Technical Tumbleweed (necro_nemesis@hotmail.com) Lokinet 0.8.2
-- First Lokinet RPM 
+- First Lokinet RPM
