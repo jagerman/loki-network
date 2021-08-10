@@ -5,7 +5,7 @@ local distro_docker = 'fedora:34';
 local submodules = {
     name: 'submodules',
     image: 'drone/git',
-    commands: ['git fetch --tags', 'git submodule update --init --recursive']
+    commands: ['git fetch --tags', 'git submodule update --init --recursive --depth=1']
 };
 
 local dnf(arch) = 'dnf -y --setopt install_weak_deps=False --setopt cachedir=/cache/'+distro+'/'+arch+'/${DRONE_STAGE_MACHINE} ';
