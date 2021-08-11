@@ -23,6 +23,7 @@ BuildRequires:  jemalloc-devel
 BuildRequires:  libsqlite3x-devel
 
 Patch1: version-as-rpm-version.patch
+Patch2: default-dns.patch
 
 Requires: lokinet-bin = %{version}-%{release}
 %{?systemd_requires}
