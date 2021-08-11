@@ -89,7 +89,6 @@ export CFLAGS="%{optflags} -march=armv6 -mtune=cortex-a53 -mfloat-abi=hard -mfpu
 
 install -m755 contrib/py/admin/lokinetmon $RPM_BUILD_ROOT/%{_bindir}/
 install -Dm644 SOURCES/lokinet.service $RPM_BUILD_ROOT/%{_unitdir}/lokinet.service
-install -Dm644 SOURCES/lokinet.preset $RPM_BUILD_ROOT/%{_presetdir}/50-%{name}.preset
 install -Dm644 contrib/systemd-resolved/lokinet.rules $RPM_BUILD_ROOT/%{_datadir}/polkit-1/rules.d/50-lokinet.rules
 
 
@@ -99,7 +98,6 @@ install -Dm644 contrib/systemd-resolved/lokinet.rules $RPM_BUILD_ROOT/%{_datadir
 %doc readme.*
 %{_datadir}/polkit-1/rules.d/50-lokinet.rules
 %{_unitdir}/lokinet.service
-%{_presetdir}/50-%{name}.preset
 
 %files bin
 
