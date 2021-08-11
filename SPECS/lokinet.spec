@@ -97,8 +97,9 @@ install -Dm644 contrib/systemd-resolved/lokinet.rules $RPM_BUILD_ROOT/%{_datadir
 
 %license LICENSE.txt
 %doc readme.*
-%{_datadir}/polkit-1/rules.d/lokinet.rules
+%{_datadir}/polkit-1/rules.d/50-lokinet.rules
 %{_unitdir}/lokinet.service
+%{_presetdir}/50-%{name}.preset
 
 %files bin
 
