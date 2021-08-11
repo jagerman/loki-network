@@ -138,6 +138,7 @@ if ! [ -e /var/lib/lokinet/bootstrap.signed ]; then
 fi
 
 if ! [ -e /etc/loki/lokinet.ini ]; then
+    mkdir -p /etc/loki
     /usr/bin/lokinet -g /etc/loki/lokinet.ini
     chmod 640 /etc/loki/lokinet.ini
     chown _lokinet:_loki /etc/loki/lokinet.ini
