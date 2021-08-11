@@ -72,7 +72,7 @@ export CFLAGS="%{optflags} -mtune=haswell"
 %ifarch aarch64
 %define cmake_extra_args -DNON_PC_TARGET=ON
 export CXXFLAGS="%{optflags} -march=armv8-a+crc -mtune=cortex-a72"
-export CFLAGS="%{optflags} march=armv8-a+crc -mtune=cortex-a72"
+export CFLAGS="%{optflags} -march=armv8-a+crc -mtune=cortex-a72"
 %endif
 %ifarch %{arm}
 %define cmake_extra_args -DNON_PC_TARGET=ON
