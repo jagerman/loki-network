@@ -21,7 +21,6 @@ BuildRequires:  systemd-rpm-macros
 BuildRequires:  libcurl-devel
 BuildRequires:  jemalloc-devel
 BuildRequires:  libsqlite3x-devel
-BuildRequires:  redhat-rpm-config
 
 Patch1: version-as-rpm-version.patch
 
@@ -66,18 +65,18 @@ of a running lokinet instance.
 
 %define cmake_extra_args %{nil}
 %ifarch x86_64
-export CXXFLAGS="${CXXFLAGS} -mtune=haswell"
-export CFLAGS="${CFLAGS} -mtune=haswell"
+export CXXFLAGS="%{optflags} -mtune=haswell"
+export CFLAGS="%{optflags} -mtune=haswell"
 %endif
 %ifarch aarch64
 %define cmake_extra_args -DNON_PC_TARGET=ON
-export CXXFLAGS="${CXXFLAGS} -march=armv8-a+crc -mtune=cortex-a72"
-export CFLAGS="${CFLAGS} march=armv8-a+crc -mtune=cortex-a72"
+export CXXFLAGS="%{optflags} -march=armv8-a+crc -mtune=cortex-a72"
+export CFLAGS="%{optflags} march=armv8-a+crc -mtune=cortex-a72"
 %endif
 %ifarch %{arm}
 %define cmake_extra_args -DNON_PC_TARGET=ON
-export CXXFLAGS="${CXXFLAGS} -march=armv6 -mtune=cortex-a53 -mfloat-abi=hard -mfpu=vfp"
-export CFLAGS="${CFLAGS} -march=armv6 -mtune=cortex-a53 -mfloat-abi=hard -mfpu=vfp"
+export CXXFLAGS="%{optflags} -march=armv6 -mtune=cortex-a53 -mfloat-abi=hard -mfpu=vfp"
+export CFLAGS="%{optflags} -march=armv6 -mtune=cortex-a53 -mfloat-abi=hard -mfpu=vfp"
 %endif
 
 %undefine __cmake_in_source_build
