@@ -90,6 +90,7 @@ export CFLAGS="%{optflags} -march=armv6 -mtune=cortex-a53 -mfloat-abi=hard -mfpu
 install -m755 contrib/py/admin/lokinetmon $RPM_BUILD_ROOT/%{_bindir}/
 install -Dm644 SOURCES/lokinet.service $RPM_BUILD_ROOT/%{_unitdir}/lokinet.service
 install -Dm644 contrib/systemd-resolved/lokinet.rules $RPM_BUILD_ROOT/%{_datadir}/polkit-1/rules.d/50-lokinet.rules
+install -Dm644 SOURCES/dnssec-lokinet.negative $RPM_BUILD_ROOT%{_exec_prefix}/lib/dnssec-trust-anchors.d/lokinet.negative
 
 
 %files
@@ -104,6 +105,7 @@ install -Dm644 contrib/systemd-resolved/lokinet.rules $RPM_BUILD_ROOT/%{_datadir
 %{_bindir}/lokinet
 %{_bindir}/lokinet-bootstrap
 %{_bindir}/lokinet-vpn
+%{_exec_prefix}/lib/dnssec-trust-anchors.d/lokinet.negative
 
 %files monitor
 
