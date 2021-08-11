@@ -80,7 +80,7 @@ export CFLAGS="%{optflags} -march=armv6 -mtune=cortex-a53 -mfloat-abi=hard -mfpu
 %endif
 
 %undefine __cmake_in_source_build
-%cmake -DNATIVE_BUILD=OFF -DUSE_AVX2=OFF -DWITH_TESTS=OFF %{cmake_extra_args} -DCMAKE_BUILD_TYPE=Release -DGIT_VERSION="%{release}" -DWITH_SETCAP=OFF -DSUBMODULE_CHECK=OFF
+%cmake -DNATIVE_BUILD=OFF -DUSE_AVX2=OFF -DWITH_TESTS=OFF %{cmake_extra_args} -DCMAKE_BUILD_TYPE=Release -DGIT_VERSION="%{release}" -DWITH_SETCAP=OFF -DSUBMODULE_CHECK=OFF -DBUILD_SHARED_LIBS=OFF
 %cmake_build
 
 %install
@@ -97,6 +97,8 @@ install -m644 contrib/systemd-resolved/lokinet.rules $RPM_BUILD_ROOT/%{_datadir}
 
 %license LICENSE.txt
 %doc readme.*
+%{_datadir}/polkit-1/rules.d/lokinet.rules
+%{_unitdir}/lokinet.service
 
 %files bin
 
