@@ -21,6 +21,7 @@ BuildRequires:  systemd-rpm-macros
 BuildRequires:  libcurl-devel
 BuildRequires:  jemalloc-devel
 BuildRequires:  libsqlite3x-devel
+BuildRequires:  redhat-rpm-config
 
 Patch1: version-as-rpm-version.patch
 
