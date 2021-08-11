@@ -64,17 +64,22 @@ of a running lokinet instance.
 %build
 
 %ifarch x86_64
-%define cmake_arch_args -DCMAKE_CXX_FLAGS="-march=x86-64 -mtune=haswell" -DCMAKE_C_FLAGS="-march=x86-64 -mtune=haswell"
+export CXXFLAGS="${CXXFLAGS} -mtune=haswell"
+export CFLAGS="${CFLAGS} -mtune=haswell"
 %endif
 %ifarch aarch64
-%define cmake_arch_args -DNON_PC_TARGET=ON -DCMAKE_CXX_FLAGS="-march=armv8-a+crc -mtune=cortex-a72" -DCMAKE_C_FLAGS="-march=armv8-a+crc -mtune=cortex-a72"
+%define cmake_extra_args -DNON_PC_TARGET=ON
+export CXXFLAGS="${CXXFLAGS} -march=armv8-a+crc -mtune=cortex-a72"
+export CFLAGS="${CFLAGS} march=armv8-a+crc -mtune=cortex-a72"
 %endif
 %ifarch %{arm}
-%define cmake_arch_args -DNON_PC_TARGET=ON -DCMAKE_CXX_FLAGS="-marm -march=armv6 -mtune=cortex-a53 -mfloat-abi=hard -mfpu=vfp" -DCMAKE_C_FLAGS="-marm -march=armv6 -mtune=cortex-a53 -mfloat-abi=hard -mfpu=vfp"
+%define cmake_extra_args -DNON_PC_TARGET=ON
+export CXXFLAGS="${CXXFLAGS} -march=armv6 -mtune=cortex-a53 -mfloat-abi=hard -mfpu=vfp"
+export CFLAGS="${CFLAGS} -march=armv6 -mtune=cortex-a53 -mfloat-abi=hard -mfpu=vfp"
 %endif
 
 %undefine __cmake_in_source_build
-%cmake -DNATIVE_BUILD=OFF -DUSE_AVX2=OFF -DWITH_TESTS=OFF %{cmake_arch_args} -DCMAKE_BUILD_TYPE=Release -DGIT_VERSION="%{release}" -DWITH_SETCAP=OFF -DSUBMODULE_CHECK=OFF
+%cmake -DNATIVE_BUILD=OFF -DUSE_AVX2=OFF -DWITH_TESTS=OFF %{cmake_extra_args} -DCMAKE_BUILD_TYPE=Release -DGIT_VERSION="%{release}" -DWITH_SETCAP=OFF -DSUBMODULE_CHECK=OFF
 %cmake_build
 
 %install
