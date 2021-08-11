@@ -63,7 +63,7 @@ of a running lokinet instance.
 
 %build
 
-%define cmake_extra_args
+%define cmake_extra_args %{nil}
 %ifarch x86_64
 export CXXFLAGS="${CXXFLAGS} -mtune=haswell"
 export CFLAGS="${CFLAGS} -mtune=haswell"
