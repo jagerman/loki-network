@@ -1,6 +1,6 @@
 Name:           lokinet
 Version:        0.9.5
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Lokinet anonymous, decentralized overlay network
 
 License:        GPLv3+
@@ -156,6 +156,11 @@ fi
 %systemd_postun lokinet.service
 
 %changelog
+* Wed Aug 11 2021 Jason Rhinelander <jason@imaginary.ca> - 0.9.5-4
+- Change default DNS address to 127.0.0.1:1053 because systemd-resolved has trouble with 127.3.2.1
+  for unknown reasons.
+- Make it work
+
 * Tue Aug 10 2021 Jason Rhinelander <jason@imaginary.ca> - 0.9.5-3
 - Updated for rpm.oxen.io packaging
 - Split into lokinet/lokinet-bin/lokinet-monitor packages
