@@ -1,6 +1,6 @@
 Name:           lokinet
 Version:        0.9.5
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Lokinet anonymous, decentralized overlay network
 
 License:        GPLv3+
@@ -22,8 +22,13 @@ BuildRequires:  libcurl-devel
 BuildRequires:  jemalloc-devel
 BuildRequires:  libsqlite3x-devel
 
+# Puts the rpm version instead of the git tag in the version string:
 Patch1: version-as-rpm-version.patch
+# Changes the default dns listener to 127.0.0.1:1053 because Fedora's systemd-resolved doesn't like
+# talking to 127.3.2.1:53 for unknown reasons.
 Patch2: default-dns.patch
+# Backport default upstream dns not working from PR 1715:
+Patch3: default-upstream-dns.patch
 
 Requires: lokinet-bin = %{version}-%{release}
 %{?systemd_requires}
@@ -156,6 +161,9 @@ fi
 %systemd_postun lokinet.service
 
 %changelog
+* Wed Aug 11 2021 Jason Rhinelander <jason@imaginary.ca> - 0.9.5-5
+- Apply default upstream dns patch from PR #1715
+
 * Wed Aug 11 2021 Jason Rhinelander <jason@imaginary.ca> - 0.9.5-4
 - Change default DNS address to 127.0.0.1:1053 because systemd-resolved has trouble with 127.3.2.1
   for unknown reasons.
