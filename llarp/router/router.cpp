@@ -1274,7 +1274,7 @@ namespace llarp
     // windows uses proactor event loop so we need to constantly pump
     _loop->add_ticker([this] { PumpLLNonIdempotent(); });
 #else
-    _loop->set_pump_function([this] { PumpLLNonIdempotent(); });
+    //_loop->set_pump_function([this] { PumpLLNonIdempotent(); });
 #endif
     _loop->call_every(ROUTER_TICK_INTERVAL, weak_from_this(), [this] { Tick(); });
     _running.store(true);
