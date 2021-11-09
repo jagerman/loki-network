@@ -144,14 +144,6 @@ namespace llarp
     void
     TransitHop::UpstreamWork(TrafficQueue_ptr msgs, AbstractRouter* r)
     {
-      auto flushIt = [self = shared_from_this(), r]() {
-        std::vector<RelayUpstreamMessage> msgs;
-        while (auto maybe = self->m_UpstreamGather.tryPopFront())
-        {
-          msgs.push_back(*maybe);
-        }
-        self->HandleAllUpstream(std::move(msgs), r);
-      };
       for (auto& ev : *msgs)
       {
         const llarp_buffer_t buf(ev.first);
@@ -160,19 +152,23 @@ namespace llarp
         msg.pathid = info.txID;
         msg.Y = ev.second ^ nonceXOR;
         msg.X = buf;
-        if (m_UpstreamGather.full())
-        {
-          r->loop()->call(flushIt);
-        }
-        if (m_UpstreamGather.enabled())
-          m_UpstreamGather.pushBack(msg);
+        if (m_UpstreamGather.tryPushBack(msg) != thread::QueueReturn::Success)
+          break;
       }
       // DEBUG FIXME DELETE ME:
       th_uw_calls++;
       if (msgs->empty())
         th_uw_empty_calls++;
 
-      r->loop()->call(flushIt);
+      // Flush it:
+      r->loop()->call([self = shared_from_this(), r] {
+        std::vector<RelayUpstreamMessage> msgs;
+        while (auto maybe = self->m_UpstreamGather.tryPopFront())
+        {
+          msgs.push_back(*maybe);
+        }
+        self->HandleAllUpstream(std::move(msgs), r);
+      });
     }
 
     void
