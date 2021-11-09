@@ -301,9 +301,15 @@ namespace llarp
       return nullptr;
     }
 
+    std::atomic<size_t> debug_pu_tp = 0, debug_pu_op = 0, debug_pd_tp = 0, debug_pd_op = 0,
+                        debug_pu_calls = 0;
+
     void
     PathContext::PumpUpstream()
     {
+      debug_pu_calls++;
+      debug_pu_tp = m_TransitPaths.second.size();
+      debug_pu_op = m_OurPaths.second.size();
       m_TransitPaths.ForEach([&](auto& ptr) { ptr->FlushUpstream(m_Router); });
       m_OurPaths.ForEach([&](auto& ptr) { ptr->FlushUpstream(m_Router); });
     }
@@ -311,6 +317,8 @@ namespace llarp
     void
     PathContext::PumpDownstream()
     {
+      debug_pd_tp = m_TransitPaths.second.size();
+      debug_pd_op = m_OurPaths.second.size();
       m_TransitPaths.ForEach([&](auto& ptr) { ptr->FlushDownstream(m_Router); });
       m_OurPaths.ForEach([&](auto& ptr) { ptr->FlushDownstream(m_Router); });
     }

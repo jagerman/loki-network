@@ -139,6 +139,8 @@ namespace llarp
       r->loop()->call(flushIt);
     }
 
+    std::atomic<size_t> th_uw_calls = 0, th_uw_empty_calls = 0;
+
     void
     TransitHop::UpstreamWork(TrafficQueue_ptr msgs, AbstractRouter* r)
     {
@@ -165,6 +167,11 @@ namespace llarp
         if (m_UpstreamGather.enabled())
           m_UpstreamGather.pushBack(msg);
       }
+      // DEBUG FIXME DELETE ME:
+      th_uw_calls++;
+      if (msgs->empty())
+        th_uw_empty_calls++;
+
       r->loop()->call(flushIt);
     }
 

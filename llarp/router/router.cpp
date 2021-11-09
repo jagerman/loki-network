@@ -42,6 +42,20 @@
 
 static constexpr std::chrono::milliseconds ROUTER_TICK_INTERVAL = 250ms;
 
+namespace llarp::path
+{
+  extern std::atomic<size_t> debug_pu_tp, debug_pu_op, debug_pu_calls, debug_pd_tp, debug_pd_op,
+      th_uw_calls, th_uw_empty_calls;
+}
+namespace llarp::iwp
+{
+  extern std::atomic<size_t> debug_pumps, debug_hpt, debug_hpt_empty;
+}
+namespace llarp
+{
+  extern std::atomic<size_t> debug_pumpl;
+}
+
 namespace llarp
 {
   Router::Router(EventLoop_ptr loop, std::shared_ptr<vpn::Platform> vpnPlatform)
@@ -258,6 +272,7 @@ namespace llarp
     return false;
   }
 
+  std::atomic<size_t> pumpll_calls = 0;
   void
   Router::PumpLL()
   {
@@ -818,8 +833,18 @@ namespace llarp
       ss << "WATCHDOG=1\nSTATUS=v" << llarp::VERSION_STR;
       if (IsServiceNode())
       {
-        ss << " snode | known/svc/clients: " << nodedb()->NumLoaded() << "/"
-           << NumberOfConnectedRouters() << "/" << NumberOfConnectedClients() << " | "
+        ss << " snode | k/s/c: " << nodedb()->NumLoaded() << "/" << NumberOfConnectedRouters()
+           << "/" << NumberOfConnectedClients() << " | "
+           << "debug: " << llarp::path::debug_pu_tp.load() << "@"
+           << llarp::path::debug_pu_calls.load() << "/" << llarp::path::debug_pu_op.load() << "/"
+           << llarp::path::debug_pd_tp.load() << "/" << llarp::path::debug_pd_op.load() << " | "
+           << "[" << llarp::path::th_uw_calls.load() << "," << llarp::path::th_uw_empty_calls.load()
+           << "]"
+           << "[" << llarp::iwp::debug_hpt.load() << "," << llarp::iwp::debug_hpt_empty.load()
+           << "]"
+           << "(" << pumpll_calls.load() << ")"
+           << "(" << debug_pumpl.load() << ")" << llarp::iwp::debug_pumps.load() << " | "
+
            << pathContext().CurrentTransitPaths() << " active paths | "
            << "block " << (m_lokidRpcClient ? m_lokidRpcClient->BlockHeight() : 0);
       }

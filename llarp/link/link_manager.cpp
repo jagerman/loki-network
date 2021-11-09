@@ -100,9 +100,11 @@ namespace llarp
     LogInfo(remote, " has been de-registered");
   }
 
+  std::atomic<size_t> debug_pumpl = 0;
   void
   LinkManager::PumpLinks()
   {
+    debug_pumpl++;
     for (const auto& link : inboundLinks)
     {
       link->Pump();

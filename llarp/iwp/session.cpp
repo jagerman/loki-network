@@ -225,9 +225,11 @@ namespace llarp
       }
     }
 
+    std::atomic<size_t> debug_pumps = 0;
     void
     Session::Pump()
     {
+      debug_pumps++;
       const auto now = m_Parent->Now();
       if (m_State == State::Ready || m_State == State::LinkIntro)
       {
@@ -641,9 +643,15 @@ namespace llarp
       m_Parent->WakeupPlaintext();
     }
 
+    std::atomic<size_t> debug_hpt = 0;
+    std::atomic<size_t> debug_hpt_empty = 0;
+
     void
     Session::HandlePlaintext()
     {
+      debug_hpt++;
+      if (m_PlaintextRecv.empty())
+        debug_hpt_empty++;
       while (not m_PlaintextRecv.empty())
       {
         auto queue = m_PlaintextRecv.popFront();
