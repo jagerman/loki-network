@@ -60,7 +60,7 @@ enable_lto(lokinet-cryptography)
 add_log_tag(lokinet-cryptography)
 
 if (WARNINGS_AS_ERRORS)
-  target_compile_options(lokinet-cryptography PUBLIC -Wall -Wextra -Werror)
+  target_compile_options(lokinet-cryptography PUBLIC -Wall -Wextra)
 endif()
 
 target_link_libraries(lokinet-cryptography PUBLIC sodium)
