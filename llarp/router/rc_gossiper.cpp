@@ -58,6 +58,9 @@ namespace llarp
       return false;
     m_Filter.Insert(pubkey);
 
+    static bool hacky_dirty_nasty = true;
+    bool hacky_ours = IsOurRC(rc);
+
     const auto now = time_now_ms();
     // is this our rc?
     if (IsOurRC(rc))
@@ -97,6 +100,11 @@ namespace llarp
     std::sample(
         gossipTo.begin(), gossipTo.end(), std::inserter(keys, keys.end()), MaxGossipPeers, CSRNG{});
 
+    int hacky_count = 0;
+    if (hacky_ours and hacky_dirty_nasty) {
+        // Artificially fail the first RC gossip attempt
+        hacky_dirty_nasty = false;
+    } else {
     m_LinkManager->ForEachPeer([&](ILinkSession* peerSession) {
       if (not(peerSession && peerSession->IsEstablished()))
         return;
@@ -109,15 +117,24 @@ namespace llarp
       ILinkSession::Message_t msg{};
       msg.resize(MAX_LINK_MSG_SIZE / 2);
       llarp_buffer_t buf(msg);
-      if (not gossip.BEncode(&buf))
+      if (not gossip.BEncode(&buf)) {
+        LogWarn("failed to encode gossip");
         return;
+      }
       msg.resize(buf.cur - buf.base);
 
       m_router->NotifyRouterEvent<tooling::RCGossipSentEvent>(m_router->pubkey(), rc);
 
       // send message
       peerSession->SendMessageBuffer(std::move(msg), nullptr, gossip.Priority());
+      if (hacky_ours)
+          LogWarn("gossiped our RC to ", peerSession->GetPubKey().ToHex());
+      hacky_count++;
     });
+    }
+    if (hacky_ours) {
+        LogWarn("gossiped our RC to ", hacky_count, " peers");
+    }
     return true;
   }
 
