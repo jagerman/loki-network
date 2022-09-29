@@ -43,7 +43,7 @@ local debian_pipeline(name,
                       extra_cmds=[],
                       jobs=6,
                       tests=true,
-                      oxen_repo=false,
+                      oxen_repo='$$(lsb_release -sc)',
                       allow_fail=false) = {
   kind: 'pipeline',
   type: 'docker',
@@ -64,10 +64,10 @@ local debian_pipeline(name,
                   apt_get_quiet + ' update',
                   apt_get_quiet + ' install -y eatmydata',
                 ] + (
-                  if oxen_repo then [
+                  if oxen_repo != '' then [
                     'eatmydata ' + apt_get_quiet + ' install --no-install-recommends -y lsb-release',
                     'cp contrib/deb.oxen.io.gpg /etc/apt/trusted.gpg.d',
-                    'echo deb http://deb.oxen.io $$(lsb_release -sc) main >/etc/apt/sources.list.d/oxen.list',
+                    'echo deb http://deb.oxen.io ' + oxen_repo + ' main >/etc/apt/sources.list.d/oxen.list',
                     'eatmydata ' + apt_get_quiet + ' update',
                   ] else []
                 ) + [
@@ -236,6 +236,7 @@ local deb_builder(image, distro, distro_branch, arch='amd64', oxen_repo=true) = 
 local clang(version) = debian_pipeline(
   'Debian sid/clang-' + version + ' (amd64)',
   docker_base + 'debian-sid-clang',
+  oxen_repo='sid',
   deps=['clang-' + version] + default_deps_nocxx,
   cmake_extra='-DCMAKE_C_COMPILER=clang-' + version + ' -DCMAKE_CXX_COMPILER=clang++-' + version + ' '
 );
@@ -243,6 +244,7 @@ local clang(version) = debian_pipeline(
 local full_llvm(version) = debian_pipeline(
   'Debian sid/llvm-' + version + ' (amd64)',
   docker_base + 'debian-sid-clang',
+  oxen_repo='sid',
   deps=['clang-' + version, ' lld-' + version, ' libc++-' + version + '-dev', 'libc++abi-' + version + '-dev']
        + default_deps_nocxx,
   cmake_extra='-DCMAKE_C_COMPILER=clang-' + version +
@@ -337,10 +339,10 @@ local docs_pipeline(name, image, extra_cmds=[], allow_fail=false) = {
                 extra_cmds=['UPLOAD_OS=docs ./contrib/ci/drone-static-upload.sh']),
 
   // Various debian builds
-  debian_pipeline('Debian sid (amd64)', docker_base + 'debian-sid'),
-  debian_pipeline('Debian sid/Debug (amd64)', docker_base + 'debian-sid', build_type='Debug'),
-  clang(13),
-  full_llvm(13),
+  debian_pipeline('Debian sid (amd64)', docker_base + 'debian-sid', oxen_repo='sid'),
+  debian_pipeline('Debian sid/Debug (amd64)', docker_base + 'debian-sid', build_type='Debug', oxen_repo='sid'),
+  clang(14),
+  full_llvm(14),
   debian_pipeline('Debian stable (i386)', docker_base + 'debian-stable/i386'),
   debian_pipeline('Debian buster (amd64)', docker_base + 'debian-buster', cmake_extra='-DDOWNLOAD_SODIUM=ON'),
   debian_pipeline('Ubuntu latest (amd64)', docker_base + 'ubuntu-rolling'),
@@ -348,11 +350,10 @@ local docs_pipeline(name, image, extra_cmds=[], allow_fail=false) = {
   debian_pipeline('Ubuntu bionic (amd64)',
                   docker_base + 'ubuntu-bionic',
                   deps=['g++-8'] + default_deps_nocxx,
-                  cmake_extra='-DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8',
-                  oxen_repo=true),
+                  cmake_extra='-DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8'),
 
   // ARM builds (ARM64 and armhf)
-  debian_pipeline('Debian sid (ARM64)', docker_base + 'debian-sid', arch='arm64', jobs=4),
+  debian_pipeline('Debian sid (ARM64)', docker_base + 'debian-sid', arch='arm64', jobs=4, oxen_repo='sid'),
   debian_pipeline('Debian stable (armhf)', docker_base + 'debian-stable/arm32v7', arch='arm64', jobs=4),
 
   // cross compile targets
@@ -377,7 +378,6 @@ local docs_pipeline(name, image, extra_cmds=[], allow_fail=false) = {
                   deps=['g++-8', 'python3-dev', 'automake', 'libtool'],
                   lto=true,
                   tests=false,
-                  oxen_repo=true,
                   cmake_extra='-DBUILD_STATIC_DEPS=ON -DBUILD_SHARED_LIBS=OFF -DSTATIC_LINK=ON ' + ci_mirror_opts +
                               '-DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ' +
                               '-DCMAKE_CXX_FLAGS="-march=x86-64 -mtune=haswell" ' +
