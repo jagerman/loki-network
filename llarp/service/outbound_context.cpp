@@ -63,13 +63,9 @@ namespace llarp::service
     updatingIntroSet = false;
 
     // pick random first intro
-    auto it = introset.intros.begin();
-    if (introset.intros.size() > 1)
-    {
-      CSRNG rng{};
-      it += std::uniform_int_distribution<size_t>{0, introset.intros.size() - 1}(rng);
-    }
-    m_NextIntro = *it;
+    m_NextIntro = *std::next(
+        introset.intros.begin(),
+        std::uniform_int_distribution<size_t>{0, introset.intros.size() - 1}(llarp::csrng));
     currentConvoTag.Randomize();
     lastShift = Now();
     // add send and connect timeouts to the parent endpoints path alignment timeout
@@ -336,7 +332,7 @@ namespace llarp::service
   {
     std::array<byte_t, 64> tmp;
     llarp_buffer_t buf{tmp};
-    CryptoManager::instance()->randomize(buf);
+    crypto::randomize(buf);
     SendPacketToRemote(buf, ProtocolType::Control);
     m_LastKeepAliveAt = Now();
   }
@@ -391,7 +387,7 @@ namespace llarp::service
         });
         if (not otherIntros.empty())
         {
-          std::shuffle(otherIntros.begin(), otherIntros.end(), CSRNG{});
+          std::shuffle(otherIntros.begin(), otherIntros.end(), llarp::csrng);
           remoteIntro = otherIntros[0];
         }
       }
@@ -531,7 +527,7 @@ namespace llarp::service
     std::vector<Introduction> intros = currentIntroSet.intros;
     if (intros.size() > 1)
     {
-      std::shuffle(intros.begin(), intros.end(), CSRNG{});
+      std::shuffle(intros.begin(), intros.end(), llarp::csrng);
     }
 
     // to find a intro on the same router as before that is newer

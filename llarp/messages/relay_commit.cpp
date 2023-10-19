@@ -401,8 +401,7 @@ namespace llarp
       info.upstream = self->record.nextHop;
 
       // generate path key as we are in a worker thread
-      auto crypto = CryptoManager::instance();
-      if (!crypto->dh_server(
+      if (!crypto::dh_server(
               self->hop->pathKey,
               self->record.commkey,
               self->context->EncryptionSecretKey(),
@@ -413,7 +412,7 @@ namespace llarp
         return;
       }
       // generate hash of hop key for nonce mutation
-      crypto->shorthash(self->hop->nonceXOR, self->hop->pathKey.data(), self->hop->pathKey.size());
+      crypto::shorthash(self->hop->nonceXOR, self->hop->pathKey.data(), self->hop->pathKey.size());
       if (self->record.work && self->record.work->IsValid(now))
       {
         llarp::LogDebug(

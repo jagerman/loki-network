@@ -12,7 +12,7 @@ namespace llarp::routing
     sig.Zero();
 
     auto bte = bt_encode();
-    return CryptoManager::instance()->sign(
+    return crypto::sign(
         sig, sk, reinterpret_cast<uint8_t*>(bte.data()), bte.size());
   }
 
@@ -24,7 +24,7 @@ namespace llarp::routing
     copy.sig.Zero();
 
     auto bte = copy.bt_encode();
-    return CryptoManager::instance()->verify(
+    return crypto::verify(
         pubkey, reinterpret_cast<uint8_t*>(bte.data()), bte.size(), sig);
   }
 
@@ -115,7 +115,7 @@ namespace llarp::routing
     copy.sig.Zero();
 
     auto bte = copy.bt_encode();
-    return CryptoManager::instance()->verify(
+    return crypto::verify(
         pk, reinterpret_cast<uint8_t*>(bte.data()), bte.size(), sig);
   }
 
@@ -126,7 +126,7 @@ namespace llarp::routing
     nonce.Randomize();
 
     auto bte = bt_encode();
-    return CryptoManager::instance()->sign(
+    return crypto::sign(
         sig, sk, reinterpret_cast<uint8_t*>(bte.data()), bte.size());
   }
 
@@ -181,7 +181,7 @@ namespace llarp::routing
     nonce.Randomize();
 
     auto bte = bt_encode();
-    return CryptoManager::instance()->sign(
+    return crypto::sign(
         sig, sk, reinterpret_cast<uint8_t*>(bte.data()), bte.size());
   }
 
@@ -193,7 +193,7 @@ namespace llarp::routing
     copy.sig.Zero();
 
     auto bte = copy.bt_encode();
-    return CryptoManager::instance()->verify(
+    return crypto::verify(
         pk, reinterpret_cast<uint8_t*>(bte.data()), bte.size(), sig);
   }
 
@@ -246,7 +246,7 @@ namespace llarp::routing
     copy.sig.Zero();
 
     auto bte = copy.bt_encode();
-    return CryptoManager::instance()->verify(
+    return crypto::verify(
         pk, reinterpret_cast<uint8_t*>(bte.data()), bte.size(), sig);
   }
 
@@ -256,7 +256,7 @@ namespace llarp::routing
     nonce.Randomize();
 
     auto bte = bt_encode();
-    return CryptoManager::instance()->sign(
+    return crypto::sign(
         sig, sk, reinterpret_cast<uint8_t*>(bte.data()), bte.size());
   }
 
@@ -341,7 +341,7 @@ namespace llarp::routing
     copy.sig.Zero();
 
     auto bte = copy.bt_encode();
-    return CryptoManager::instance()->verify(
+    return crypto::verify(
         pk, reinterpret_cast<uint8_t*>(bte.data()), bte.size(), sig);
   }
 
@@ -352,7 +352,7 @@ namespace llarp::routing
     nonce.Randomize();
 
     auto bte = bt_encode();
-    return CryptoManager::instance()->sign(
+    return crypto::sign(
         sig, sk, reinterpret_cast<uint8_t*>(bte.data()), bte.size());
   }
 

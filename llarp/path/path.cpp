@@ -428,7 +428,7 @@ namespace llarp::path
 
       for (const auto& hop : hops)
       {
-        CryptoManager::instance()->xchacha20(buf, sz, hop.shared, n);
+        crypto::xchacha20(buf, sz, hop.shared, n);
         n ^= hop.nonceXOR;
       }
       auto& msg = sendmsgs[idx];
@@ -506,7 +506,7 @@ namespace llarp::path
       for (const auto& hop : hops)
       {
         sendMsgs[idx].nonce ^= hop.nonceXOR;
-        CryptoManager::instance()->xchacha20(buf, sz, hop.shared, sendMsgs[idx].nonce);
+        crypto::xchacha20(buf, sz, hop.shared, sendMsgs[idx].nonce);
       }
 
       std::memcpy(sendMsgs[idx].enc.data(), buf, sz);
@@ -564,7 +564,7 @@ namespace llarp::path
     if (buf.sz < PAD_SIZE)
     {
       // randomize padding
-      CryptoManager::instance()->randbytes(buf.cur, PAD_SIZE - buf.sz);
+      crypto::randbytes(buf.cur, PAD_SIZE - buf.sz);
       buf.sz = PAD_SIZE;
     }
     buf.cur = buf.base;

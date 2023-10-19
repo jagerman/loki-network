@@ -26,7 +26,7 @@ namespace llarp::exit
       , m_BundleRC{false}
       , m_Parent{parent}
   {
-    CryptoManager::instance()->identity_keygen(exit_key);
+    crypto::identity_keygen(exit_key);
   }
 
   BaseSession::~BaseSession() = default;
