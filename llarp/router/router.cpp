@@ -613,6 +613,10 @@ namespace llarp
 
         init_bootstrap();
 
+        // TODO: add something sensible to the first parameter
+        _local_endpoint = std::make_shared<handlers::LocalEndpoint>("", *this);
+        _remote_handler = std::make_shared<handlers::RemoteHandler>("", *this);
+
         if (conf.network.endpoint_type != "null")
         {
             _should_init_tun = true;

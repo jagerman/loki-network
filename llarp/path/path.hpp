@@ -27,7 +27,7 @@ namespace llarp
 
     /*
       TODO:
-        - Add a boolean for "allow incoming session" or something
+        - redo shortname and Router::shortname
     */
 
     namespace path

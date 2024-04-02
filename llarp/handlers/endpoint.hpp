@@ -34,7 +34,7 @@ namespace llarp::handlers
         std::set<IPRange> _owned_ranges;
 
       public:
-        LocalEndpoint(Router& r);
+        LocalEndpoint(std::string name, Router& r);
 
         ~LocalEndpoint() override = default;
 

@@ -6,8 +6,8 @@ namespace llarp::handlers
 {
     static auto logcat = log::Cat("local_endpoint");
 
-    LocalEndpoint::LocalEndpoint(Router& r)
-        : path::PathHandler{r, 3, path::DEFAULT_LEN}, _is_exit_node{_router.is_exit_node()}
+    LocalEndpoint::LocalEndpoint(std::string name, Router& r)
+        : path::PathHandler{r, 3, path::DEFAULT_LEN}, _is_exit_node{_router.is_exit_node()}, _name{std::move(name)}
     {}
 
     const std::shared_ptr<EventLoop>& LocalEndpoint::loop()
