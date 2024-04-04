@@ -413,12 +413,20 @@ namespace llarp
 
         conf.define_option<std::string>(
             "network",
-            "owned-range",
+            "routed-range",
             MultiValue,
             Comment{
-                "When in exit mode announce we allow a private range in our introset.  For "
-                "example:",
-                "    owned-range=10.0.0.0/24",
+                "When in exit mode announce one or more IP ranges that this exit node routes",
+                "traffic for.  If omitted, the default is all public ranges.  Can be set to",
+                "public to indicate that this exit routes traffic to the public internet.",
+                "For example:",
+                "    routed-range=10.0.0.0/16",
+                "    routed-range=public",
+                "to advertise that this exit routes traffic to both the public internet, and to",
+                "10.0.x.y addresses.",
+                "",
+                "Note that this option does not automatically configure network routing; that",
+                "must be configured separately on the exit system to handle lokinet traffic.",
             },
             [this](std::string arg) {
                 if (auto range = IPRange::from_string(arg))
@@ -461,10 +469,10 @@ namespace llarp
                 "Specify a `.loki` address and an ip range to use as an exit broker.",
                 "Examples:",
                 "    exit-node=whatever.loki",
-                "would map all exit traffic through whatever.loki; and",
+                "would route all exit traffic through whatever.loki; and",
                 "    exit-node=stuff.loki:100.0.0.0/24",
-                "would map the IP range 100.0.0.0/24 through stuff.loki.",
-                "This option can be specified multiple times (to map different IP ranges).",
+                "would route the IP range 100.0.0.0/24 through stuff.loki.",
+                "This option can be specified multiple times (to route different IP ranges).",
             },
             [this](std::string arg) {
                 if (arg.empty())

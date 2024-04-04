@@ -609,7 +609,7 @@ namespace llarp::path
         if (auto maybe_hops = get_hops_to_random())
         {
             log::debug(logcat, "{} building path to random remote", name());
-            build(*maybe_hops);
+            build(*maybe_hops); // should be moved
             return true;
         }
 
@@ -622,7 +622,7 @@ namespace llarp::path
         if (auto maybe_hops = aligned_hops_to_remote(remote))
         {
             log::debug(logcat, "{} building path to {}", name(), remote);
-            build(*maybe_hops);
+            build(*maybe_hops); // should be moved
             return true;
         }
 

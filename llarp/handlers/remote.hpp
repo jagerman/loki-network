@@ -90,10 +90,15 @@ namespace llarp
             {
                 RouterID rid{remote.pubkey().data()};
 
+                // decltype(remote) -> net_addr_t
                 if constexpr (std::is_same_v<decltype(remote), NetworkAddress>)
                 {
                     return initiate_session(rid, true, false);
                 }
+                // decltype(remote) -> net_addr_t
+                // Or perhaps better:
+                // else { static_assert(std::is_same_v<net_addr_t, RelayAddress>); ... }
+                // so that we just fail to compile if you try to provide some other type here
                 if constexpr (std::is_same_v<decltype(remote), RelayAddress>)
                 {
                     return initiate_session(rid, false, true);
