@@ -36,7 +36,6 @@ namespace llarp
     inline constexpr uint16_t DEFAULT_DNS_PORT{53};
     inline constexpr int CLIENT_ROUTER_CONNECTIONS{4};
 
-    // TODO: don't use these maps. they're sloppy and difficult to follow
     /// Small struct to gather all parameters needed for config generation to reduce the number of
     /// parameters that need to be passed around.
     struct ConfigGenParameters
