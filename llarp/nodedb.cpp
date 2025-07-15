@@ -3,6 +3,7 @@
 #include "crypto/types.hpp"
 #include "link/link_manager.hpp"
 #include "messages/fetch.hpp"
+#include "util/file.hpp"
 #include "util/time.hpp"
 
 #include <oxen/quic/btstream.hpp>
@@ -16,9 +17,9 @@
 
 namespace llarp
 {
-    static auto logcat = llarp::log::Cat("nodedb");
+    static auto logcat = log::Cat("nodedb");
 
-    static constexpr auto RC_FILE_EXT = ".signed"sv;
+    static const fs::path RC_FILE_EXT{".signed"};
 
     std::tuple<size_t, size_t, size_t> NodeDB::db_stats() const { return {num_rcs(), num_rids(), num_bootstraps()}; }
 
@@ -186,7 +187,9 @@ namespace llarp
 
     fs::path NodeDB::get_path_by_pubkey(const RouterID& pubkey) const
     {
-        return "{}/{}{}"_format(_root.native(), pubkey.to_string(), RC_FILE_EXT);
+        fs::path dest = _dir / fs::path{pubkey.to_string()};
+        dest += RC_FILE_EXT;
+        return dest;
     }
 
     void NodeDB::process_fetched_rcs(std::vector<RemoteRC> rcs)
@@ -530,12 +533,14 @@ namespace llarp
     {
         log::trace(logcat, "NodeDB starting tickers...");
 
+        _flush_ticker = _router.loop()->call_every(FLUSH_INTERVAL, [this] { save_to_disk_async(); });
+
         // TODO FIXME: this startup pattern is very strange.  save_to_disk might fire before the
         // first purge_rcs, but why?  Wouldn't we be better with just *one* ticker here that does a
         // purge-then-save?
 
-        _flush_ticker = _router.loop()->call_every(FLUSH_INTERVAL, [this] { save_to_disk(); });
-        _router.loop()->call_later(uniform_duration_distribution{5s, 10s}(llarp::csrng), [this] { save_to_disk(); });
+        _router.loop()->call_later(
+            uniform_duration_distribution{5s, 10s}(llarp::csrng), [this] { save_to_disk_async(); });
 
         _purge_ticker = _router.loop()->call_every(PURGE_INTERVAL, [this] { purge_rcs(); }, not _needs_bootstrap);
         if (not _needs_bootstrap)
@@ -560,12 +565,14 @@ namespace llarp
         }
     }
 
-    NodeDB::NodeDB(Router& r) : _router{r}, _root{_router.config().router.data_dir / nodedb_dirname}
+    NodeDB::NodeDB(Router& r) : _router{r}, _dir{_router.config().router.data_dir / nodedb_dirname}
     {
-        if (not fs::exists(_root))
-            fs::create_directory(_root);
-        if (not fs::is_directory(_root))
-            throw std::runtime_error{fmt::format("nodedb {} is not a directory", _root)};
+        // TODO FIXME: remove/lower this after figuring out how we got an empty nodedb parent dir
+        log::critical(logcat, "Initializing NodeDB with storage in: {}", _dir);
+        if (not fs::exists(_dir))
+            fs::create_directory(_dir);
+        if (not fs::is_directory(_dir))
+            throw std::runtime_error{"nodedb {} is not a directory"_format(_dir)};
 
         auto seed = _router.config().bootstrap.seednode;
         if (seed)
@@ -847,14 +854,14 @@ namespace llarp
 
         log::trace(logcat, "{} called", __PRETTY_FUNCTION__);
 
-        if (_root.empty())
+        if (_dir.empty())
             return;
 
         std::vector<fs::path> purge;
 
         const auto now = time_now_ms();
 
-        for (const auto& f : fs::directory_iterator{_root})
+        for (const auto& f : fs::directory_iterator{_dir})
         {
             if (not f.is_regular_file() or f.path().extension() != RC_FILE_EXT)
                 continue;
@@ -889,22 +896,60 @@ namespace llarp
         }
     }
 
-    void NodeDB::save_to_disk() const
+    void NodeDB::save_to_disk()
     {
-        // TODO FIXME: we should have a "changed" flag here so that we only write anything to disk
-        // if it has changed.  Otherwise we're writing 2000+ files to disk every few seconds.
-
-        log::trace(logcat, "{} called", __PRETTY_FUNCTION__);
-
-        if (_root.empty())
+        if (_dir.empty() || unsaved.empty())
             return;
 
-        log::trace(logcat, "Writing NodeDB contents to disk...");
+        std::promise<void> prom;
+        auto fut = prom.get_future();
+        log::trace(logcat, "Writing NodeDB contents to disk via disk thread...");
+        _router.queue_disk_io([this, &prom] {
+            log::trace(logcat, "Saving NodeDB contents to disk...");
+            for (auto& rid : unsaved)
+                if (auto it = known_rcs.find(rid); it != known_rcs.end())
+                    it->second.write(get_path_by_pubkey(rid));
 
-        for (const auto& [rid, rc] : known_rcs)
-            rc.write(get_path_by_pubkey(rid));
+            unsaved.clear();
 
-        log::trace(logcat, "Done writing NodeDB contents");
+            log::trace(logcat, "Done writing NodeDB contents");
+            prom.set_value();
+        });
+        fut.wait();
+    }
+
+    void NodeDB::save_to_disk_async()
+    {
+        if (_dir.empty() || unsaved.empty())
+            return;
+
+        // Entirely different implementation from the above because we have to extract all the
+        // values to be written before we dispatch to the disk thread because it can't rely on
+        // `this` being safe to touch from the disk thread.
+        std::unordered_map<fs::path, std::string> to_save;
+        for (auto& rid : unsaved)
+            if (auto it = known_rcs.find(rid); it != known_rcs.end())
+                to_save.emplace(get_path_by_pubkey(rid), it->second.view());
+        unsaved.clear();
+
+        if (to_save.empty())
+            return;
+
+        _router.queue_disk_io([to_save = std::move(to_save)] {
+            log::trace(logcat, "Saving NodeDB contents to disk...");
+            for (auto& [path, body] : to_save)
+            {
+                try
+                {
+                    util::buffer_to_file(path, body);
+                }
+                catch (const std::exception& e)
+                {
+                    log::error(logcat, "Failed to write RC to {}: {}", path, e.what());
+                }
+            }
+            log::trace(logcat, "Done writing NodeDB contents");
+        });
     }
 
     void NodeDB::cleanup()
@@ -964,10 +1009,14 @@ namespace llarp
 
         auto [it, inserted] = known_rcs.try_emplace(rc.router_id(), std::move(rc));
         if (inserted)
+        {
+            unsaved.insert(rc.router_id());
             return true;
+        }
         if (it->second.other_is_newer(rc))
         {
             it->second = std::move(rc);
+            unsaved.insert(rc.router_id());
             return true;
         }
         return false;
@@ -991,48 +1040,37 @@ namespace llarp
 
     void NodeDB::remove_rcs_if(const std::function<bool(const RemoteRC&)>& remove)
     {
-        // only called from within event loop ticker
         assert(_router.loop()->inside());
 
-        std::vector<RouterID> removed;
+        if (_dir.empty())
+            return;
+
+        std::vector<fs::path> to_remove;
 
         for (auto it = known_rcs.begin(); it != known_rcs.end();)
         {
             const auto& [rid, rc] = *it;
             if (remove(rc))
             {
-                removed.push_back(rid);
+                to_remove.push_back(get_path_by_pubkey(rid));
                 it = known_rcs.erase(it);
             }
             else
                 ++it;
         }
 
-        if (not removed.empty())
-            remove_many_from_disk_async(std::move(removed));
+        if (to_remove.empty())
+            return;
+
+        _router.queue_disk_io([to_remove = std::move(to_remove)] {
+            for (const auto& p : to_remove)
+                fs::remove(p);
+        });
     }
 
     bool NodeDB::verify_store_gossip_rc(const RemoteRC& rc)
     {
         return registered_routers().contains(rc.router_id()) && put_rc(rc);
-    }
-
-    void NodeDB::remove_many_from_disk_async(const std::vector<RouterID>& remove) const
-    {
-        if (_root.empty())
-            return;
-
-        // build file list
-        std::vector<fs::path> files;
-        files.reserve(remove.size());
-        for (const auto& rid : remove)
-            files.push_back(get_path_by_pubkey(rid));
-
-        // remove them from the disk via the diskio thread
-        _router.queue_disk_io([files = std::move(files)] {
-            for (const auto& p : files)
-                fs::remove(p);
-        });
     }
 
     std::vector<const RemoteRC*> NodeDB::find_many_closest_to(llarp::hash_key location, int num_routers) const

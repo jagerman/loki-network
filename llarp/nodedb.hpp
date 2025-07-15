@@ -21,7 +21,7 @@ namespace llarp
 
     inline constexpr auto FETCH_INTERVAL{10min};
     inline constexpr auto PURGE_INTERVAL{5min};
-    inline constexpr auto FLUSH_INTERVAL{5min};
+    inline constexpr auto FLUSH_INTERVAL{30s};
 
     /*  RC Fetch Constants  */
     // fallback to bootstrap if we have less than this many RCs
@@ -65,10 +65,8 @@ namespace llarp
 
     class NodeDB
     {
-        friend class Router;
-
         Router& _router;
-        const fs::path _root;
+        const fs::path _dir;
 
         /******** RouterID/RelayContacts ********/
 
@@ -95,6 +93,9 @@ namespace llarp
 
         std::unordered_map<RouterID, RemoteRC> known_rcs;
 
+        // Tracks the keys of known_rcs that haven't yet been saved to disk:
+        std::unordered_set<RouterID> unsaved;
+
         BootstrapList _bootstraps{};
 
         // All registered relays (service nodes)
@@ -119,9 +120,6 @@ namespace llarp
         std::atomic<int> fetch_counter{};
         std::atomic<int> fail_counter{};
         std::atomic<int> response_counter{};
-
-        /// asynchronously remove the files for a set of rcs on disk given their public ident key
-        void remove_many_from_disk_async(const std::vector<RouterID>& idents) const;
 
         /// get filename of an RC file given its public ident key
         fs::path get_path_by_pubkey(const RouterID& pk) const;
@@ -217,7 +215,10 @@ namespace llarp
         void load_from_disk();
 
         /// explicit save all RCs to disk synchronously
-        void save_to_disk() const;
+        void save_to_disk();
+
+        /// initiate writing of all RCs to disk asynchronously
+        void save_to_disk_async();
 
         /// called on close
         void cleanup();

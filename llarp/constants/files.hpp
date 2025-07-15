@@ -1,5 +1,4 @@
 #pragma once
-#include "platform.hpp"
 
 #include <filesystem>
 
@@ -25,12 +24,8 @@ namespace llarp
 #ifndef _WIN32
         fs::path datadir{"/var/lib/lokinet"};
         if (auto uid = geteuid())
-        {
             if (auto* pw = getpwuid(uid))
-            {
                 datadir = fs::path{pw->pw_dir} / ".lokinet";
-            }
-        }
         return datadir;
 #else
         return fs::path{"C:\\ProgramData\\Lokinet"};
