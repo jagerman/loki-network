@@ -91,7 +91,7 @@ namespace llarp::link
             },
             inbound_alpn,
             quic::opt::outbound_alpns{{router.is_service_node ? RELAY_ALPN : CLIENT_ALPN}},
-            quic::opt::enable_datagrams{quic::Splitting::ACTIVE});
+            quic::opt::enable_datagrams{quic::Splitting::NONE});
 
         if (router.is_service_node)
         {
