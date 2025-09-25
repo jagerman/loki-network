@@ -97,6 +97,7 @@ namespace llarp::link
             quic::opt::outbound_alpns{{router.is_service_node ? RELAY_ALPN : CLIENT_ALPN}},
             quic::opt::enable_datagrams{quic::Splitting::ACTIVE});
 
+#if 0
         tls_creds->enable_outbound_0rtt(
             [this](
                 const quic::RemoteAddress& remote, std::vector<unsigned char> data, std::chrono::sys_seconds expiry) {
@@ -120,10 +121,13 @@ namespace llarp::link
                 ret = router.node_db().extract_0rtt(rid);
                 return ret;
             });
+#endif
 
         if (router.is_service_node)
         {
+#if 0
             tls_creds->enable_inbound_0rtt(0s, 48h);
+#endif
 
             tls_creds->request_client_keys([this](const std::span<const uint8_t> key, const std::string_view alpn) {
                 // NB: this code *must not* call_get into the router event loop, because there are
