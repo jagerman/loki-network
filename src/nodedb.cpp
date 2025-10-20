@@ -601,10 +601,11 @@ namespace srouter
         if (obsolete > 0)
             log::info(logcat, "Removed {} obsolete bootstraps RCs", obsolete);
 
-        if (std::erase_if(_bootstraps, [this](const auto& bs) { return bs.router_id() == _router.id(); }) > 0)
+        auto removed = std::erase_if(_bootstraps, [this](const auto& bs) { return bs.router_id() == _router.id(); });
+        if (removed > 0)
             log::info(logcat, "Found and removed ourself ({}) from the bootstrap list", _router.id());
 
-        if (_bootstraps.empty())
+        if (_bootstraps.empty() && (removed > 0 || _router.config().bootstrap.files.empty()))
         {
             log::debug(logcat, "Bootstrap list is empty; loading built-in fallbacks");
             for (const auto& [n, rc_blob] : bootstrap_fallbacks)
