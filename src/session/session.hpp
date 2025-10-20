@@ -442,6 +442,31 @@ namespace srouter
             std::string to_string() const override;
         };
 
+#if defined(__GNUG__) && !defined(__clang__) && __GNUG__ <= 10
+        // Workaround for gcc-10: our stock quic::ToStringFormattable fails under gcc-10 for
+        // abstract classes, so this workaround formatter gets used instead to make it work.
+        template <typename T>
+        struct gcc_session_formatter : fmt::formatter<std::string_view>
+        {
+            template <typename FormatContext>
+            auto format(const T& val, FormatContext& ctx) const
+            {
+                return formatter<std::string_view>::format(val.to_string(), ctx);
+            }
+        };
+#endif
+
     }  // namespace session
 
 }  // namespace srouter
+
+#if defined(__GNUG__) && !defined(__clang__) && __GNUG__ <= 10
+// gcc-10 workaround: see above
+namespace fmt
+{
+    template <>
+    struct formatter<srouter::session::OutboundSession>
+        : srouter::session::gcc_session_formatter<srouter::session::OutboundSession>
+    {};
+}  // namespace fmt
+#endif
