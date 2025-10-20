@@ -540,6 +540,10 @@ namespace srouter::dns
         // add default resolver as needed
         if (auto ptr = make_default_resolver())
             add_resolver(ptr);
+
+        // FIXME: this should be handled by RoutePoker once it is resurrected, handling whether
+        // we eat all DNS traffic or just .loki/.snode.  For now, we only handle those.
+        set_dns_mode(false);
     }
 
     std::shared_ptr<I_Platform> Server::create_platform() const

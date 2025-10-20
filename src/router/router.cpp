@@ -683,7 +683,10 @@ namespace srouter
 #else
             log::debug(logcat, "Initializing TUN device");
             auto tun = _loop->make_shared<handlers::TunEndpoint>(*this);
-            tun->setup_dns();
+
+            // only (full) clients should have DNS, relays have no need for it
+            if (!is_service_node)
+                tun->setup_dns();
 
             log::info(
                 log_global,

@@ -977,7 +977,7 @@ namespace srouter
         conf.define_option<std::string>(
             "dns",
             "bind",
-            NotEmbedded,
+            FullClientOnly,
             DefaultDNSBind,
             MultiValue,
             Comment{
