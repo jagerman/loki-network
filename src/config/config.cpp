@@ -1275,7 +1275,7 @@ namespace srouter
                 files.emplace_back(std::move(arg));
 
                 if (not exists(files.back()))
-                    throw std::invalid_argument("file does not exist: " + arg);
+                    throw std::invalid_argument{"file does not exist: {}"_format(files.back())};
             });
     }
 
