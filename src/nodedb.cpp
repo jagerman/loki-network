@@ -584,7 +584,7 @@ namespace srouter
             load_bootstrap(f);
         }
 
-        if (_bootstraps.empty() && exists(def))
+        if (_router.config().bootstrap.files.empty() && exists(def))
         {
             log::debug(logcat, "No configured bootstraps; loading from {}", def);
             try
