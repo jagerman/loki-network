@@ -674,6 +674,7 @@ namespace srouter::handlers
 
                 msg.add_CNAME_reply(our_name, 1);
                 msg.add_IN_reply(_local_net.ip.addr);
+                msg.set_IN_reply_rr_name(our_name);
                 reply(msg);
             }
             else if (auto maybe_netaddr = try_making<NetworkAddress>("{}.{}"_format(hostname, tld)))

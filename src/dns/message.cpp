@@ -179,6 +179,8 @@ namespace srouter::dns
         }
     }
 
+    void Message::set_IN_reply_rr_name(std::string_view name) { answers.back().rr_name = name; }
+
     void Message::add_reply(std::string name, RR_TTL_t ttl)
     {
         if (questions.size())

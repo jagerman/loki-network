@@ -60,6 +60,7 @@ namespace srouter
             void add_CNAME_reply(std::string name, RR_TTL_t ttl = 1);
 
             void add_IN_reply(uint32_t addr, RR_TTL_t ttl = 1);
+            void set_IN_reply_rr_name(std::string_view name);
 
             void add_reply(std::string name, RR_TTL_t ttl = 1);
 
