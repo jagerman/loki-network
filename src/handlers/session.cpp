@@ -935,7 +935,7 @@ namespace srouter::handlers
 
     void SessionEndpoint::handle_session_init(std::vector<std::byte>&& payload, std::shared_ptr<path::TransitHop> thop)
     {
-        log::warning(logcat, "SessionEndpoint::handle_session_init (relay)");
+        log::debug(logcat, "SessionEndpoint::handle_session_init (relay)");
         std::shared_ptr<session::InboundSession> new_session{};
         try
         {
@@ -943,10 +943,10 @@ namespace srouter::handlers
         }
         catch (const std::exception& e)
         {
-            log::warning(logcat, "Inbound session rejected: {}", e.what());
+            log::info(logcat, "Inbound session rejected: {}", e.what());
             return;
         }
-        log::warning(logcat, "SessionEndpoint::handle_session_init (relay) calling post_init");
+        log::debug(logcat, "SessionEndpoint::handle_session_init (relay) calling post_init");
         session_post_init(std::move(new_session));
     }
 
