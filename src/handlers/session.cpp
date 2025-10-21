@@ -971,13 +971,9 @@ namespace srouter::handlers
         // to establish a session; in that case we should replace what we have.
         auto& s = _sessions[new_session->remote()];
         auto* sptr = new_session.get();
-        if (!s)
-        {
-            s = std::move(new_session);
-            _session_tags[s->inbound_tag()] = s;
-            // TODO: response with our inbound tag
-        }
-        log::warning(logcat, "sending session_init_accept");
+        s = std::move(new_session);
+        _session_tags[s->inbound_tag()] = s;
+        log::debug(logcat, "sending session_init_accept");
         sptr->session_init_accept();
     }
 
