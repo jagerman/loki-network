@@ -16,82 +16,47 @@ namespace srouter::dns::sd
         // This passing address by bytes and using two separate calls for ipv4/ipv6 is gross, but
         // the alternative is to build up a bunch of crap with va_args, which is slightly more
         // gross.
-        const bool isStandardDNSPort = dns.port() == 53;
+
+        _dbus("SetLinkDefaultRoute", "ib", (int32_t)if_ndx, false);
+        _dbus("SetLinkDNSOverTLS", "is", (int32_t)if_ndx, "off");
+
         if (dns.is_ipv6())
         {
-            ipv6 ipv6{dns.in6().sin6_addr};
-            static_assert(sizeof(ipv6) == 16);
+            auto& a = dns.in6().sin6_addr.s6_addr;
+            static_assert(sizeof(a) == 16);
 
-            auto* a = reinterpret_cast<const uint8_t*>(&ipv6);
-            if (isStandardDNSPort)
-            {
-                _dbus(
-                    "SetLinkDNS",
-                    "ia(iay)",
-                    (int32_t)if_ndx,
-                    (int)1,             // number of "iayqs"s we are passing
-                    (int32_t)AF_INET6,  // network address type
-                    (int)16,            // network addr byte size
-                                        // clang-format off
-              a[0], a[1], a[2],  a[3],  a[4],  a[5],  a[6],  a[7],
-              a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15] // yuck
-                                        // clang-format on
-                );
-            }
-            else
-            {
-                _dbus(
-                    "SetLinkDNSEx",
-                    "ia(iayqs)",
-                    (int32_t)if_ndx,
-                    (int)1,             // number of "iayqs"s we are passing
-                    (int32_t)AF_INET6,  // network address type
-                    (int)16,            // network addr byte size
-                    // clang-format off
-              a[0], a[1], a[2],  a[3],  a[4],  a[5],  a[6],  a[7],
-              a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15], // yuck
-                            // clang-format on
-                    dns.port(),
-                    nullptr  // dns server name (for TLS SNI which we don't care about)
-                );
-            }
+            _dbus(
+                "SetLinkDNSEx",
+                "ia(iayqs)",
+                (int32_t)if_ndx,
+                (int)1,             // number of "iayqs"s we are passing
+                (int32_t)AF_INET6,  // network address type
+                (int)16,            // network addr byte size
+                // clang-format off
+                a[0], a[1], a[2],  a[3],  a[4],  a[5],  a[6],  a[7],
+                a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15], // yuck
+                // clang-format on
+                dns.port(),
+                nullptr  // dns server name (for TLS SNI which we don't care about)
+            );
         }
         else
         {
-            ipv4 ipv4{oxenc::big_to_host<uint32_t>(dns.in4().sin_addr.s_addr)};
+            std::span<const uint8_t, 4> a{reinterpret_cast<const uint8_t*>(&dns.in4().sin_addr.s_addr), 4};
 
-            auto* a = reinterpret_cast<const uint8_t*>(&ipv4);
-
-            if (isStandardDNSPort)
-            {
-                _dbus(
-                    "SetLinkDNS",
-                    "ia(iay)",
-                    (int32_t)if_ndx,
-                    (int)1,            // number of "iayqs"s we are passing
-                    (int32_t)AF_INET,  // network address type
-                    (int)4,            // network addr byte size
-                                       // clang-format off
-              a[0], a[1], a[2], a[3] // yuck
-                                       // clang-format on
-                );
-            }
-            else
-            {
-                _dbus(
-                    "SetLinkDNSEx",
-                    "ia(iayqs)",
-                    (int32_t)if_ndx,
-                    (int)1,            // number of "iayqs"s we are passing
-                    (int32_t)AF_INET,  // network address type
-                    (int)4,            // network addr byte size
-                    // clang-format off
-              a[0], a[1], a[2], a[3], // yuck
-                           // clang-format on
-                    dns.port(),
-                    nullptr  // dns server name (for TLS SNI which we don't care about)
-                );
-            }
+            _dbus(
+                "SetLinkDNSEx",
+                "ia(iayqs)",
+                (int32_t)if_ndx,
+                (int)1,            // number of "iayqs"s we are passing
+                (int32_t)AF_INET,  // network address type
+                (int)4,            // network addr byte size
+                // clang-format off
+                a[0], a[1], a[2], a[3], // yuck
+                // clang-format on
+                dns.port(),
+                nullptr  // dns server name (for TLS SNI which we don't care about)
+            );
         }
 
         if (global)
