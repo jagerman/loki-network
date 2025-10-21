@@ -81,7 +81,7 @@ namespace srouter::rpc
             return;               // update already in progress
         }
 
-        nlohmann::json req{{"fields", {"pubkey_ed25519", "block_hash"}}};
+        nlohmann::json req{{"fields", {"pubkey_ed25519", "block_hash", "session_router_version"}}};
         if (!_last_hash_update.empty())
             req["poll_block_hash"] = _last_hash_update;
 
@@ -196,8 +196,28 @@ namespace srouter::rpc
                 continue;
 
             RouterID rid;
-            if (rid.FromHex(ed_itr->get<std::string_view>()))
-                registered.insert(rid);
+            if (not rid.FromHex(ed_itr->get<std::string_view>()))
+            {
+                log::warning(
+                    logcat, "Failed to parse pubkey '{}' from service node list", ed_itr->get<std::string_view>());
+                continue;
+            }
+
+            // Transition mechanism for Oxen 11.6 where Session Router is not yet required for
+            // service nodes: we only consider a node registered if has reported a
+            // session_router_version.
+            //
+            // TODO: remove this once we are past the session-router-is-required-now oxend mandatory
+            // upgrade.
+            auto srv_it = snode.find("session_router_version");
+            if (srv_it == snode.end() || srv_it->get<std::array<int, 3>>() <= std::array{1, 0, 0})
+            {
+                log::debug(
+                    logcat, "Ignoring {} registration: uptime proof does not include a Session Router version", rid);
+                continue;
+            }
+
+            registered.insert(rid);
         }
 
         if (registered.empty())
