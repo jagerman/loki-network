@@ -65,11 +65,11 @@ namespace srouter::session
         // TCP conns and port mappings will need to be restarted.
         void reset()
         {
-            log::critical(logcat, "TCPTunnel::reset()");
+            log::trace(logcat, "TCPTunnel::reset()");
             quic_conn.reset();
             _tcp_conns.clear();
             tcp_handles.clear();
-            log::critical(logcat, "TCPTunnel::reset() END");
+            log::trace(logcat, "TCPTunnel::reset() END");
         }
 
         TCPTunnel(Session& _session) : session(_session)
@@ -916,9 +916,9 @@ namespace srouter::session
     {
         if ((now - last_cc_update > 10min) || (now - last_inbound_activity > 30s))
         {
-            log::critical(
+            log::info(
                 logcat,
-                "It has been > 5min since last cc update, or > 10s since last inbound activity; attempting to fetch a "
+                "It has been > 10min since last cc update, or > 30s since last inbound activity; attempting to fetch a "
                 "new intro set for session to {}",
                 _remote);
             refresh_intros();

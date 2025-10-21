@@ -426,45 +426,8 @@ namespace srouter::link
 
         if (not router.is_service_node)
         {
-            // If we aren't a service node then this message is presumably a pushed introset update
-            // pushed to us by someone who we should already have an outbound connection with.
-
-            // TODO FIXME: This previously included an optional "i" key containing the sender for
-            // these send-over-session messages, but that seems dumb because 1) it isn't
-            // authenticated, and 2) we should already *know* the sender based on the session the
-            // message arived on.
-
-            log::critical(logcat, "TODO FIXME STAGENET TOTHINK: fix incoming session CC handling");
-            respond("FIXME!");
-
-#if 0
-            if (not sender.has_value())
-            {
-                log::warning(logcat, "Received new EncryptedClientContact from path control with no sender!");
-                // TODO FIXME - does this client-to-client push actually need a response?
-                return m.respond(messages::ERROR_RESPONSE, true);
-            }
-
-            NetworkAddress sender_addr{*sender, true};
-            auto session = router.session_endpoint().get_session(sender_addr);
-            if (!session || !session->is_outbound)
-            {
-                log::warning(logcat, "Ignoring pushed ClientContact from {}: no outbound session found", sender_addr);
-                return m.respond(messages::ERROR_RESPONSE, true);
-            }
-
-            auto intro = enc.decrypt(*sender);
-            if (not intro)
-                // error message already logged in decrypt(...) call
-                return m.respond(messages::ERROR_RESPONSE, true);
-
-            log::debug(logcat, "Storing ClientContact for remote {}", sender_addr);
-            router.contact_db().put_cc(std::move(enc));
-
-            // FIXME: this should probably come encrypted.  Need to encrypt it and also handle it here.
-
-            return m.respond(messages::OK_RESPONSE);
-#endif
+            log::warning(logcat, "Clients should not even be able to reach this codepath...harmless, but weird.");
+            return;
         }
 
         auto cc_blind_pk = enc.key();
