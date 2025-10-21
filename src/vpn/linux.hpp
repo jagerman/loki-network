@@ -7,6 +7,7 @@
 
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <ifaddrs.h>
 #include <linux/if_tun.h>
 #include <linux/rtnetlink.h>
 #include <net/if.h>
@@ -164,6 +165,41 @@ namespace srouter::vpn
                     throw std::runtime_error{
                         "Failed to add address {} to {}: {}"_format(addr_strings.back(), _info.ifname, *err)};
             }
+
+            // Check to make sure that we are the *only* interface with our configured addresses, in
+            // case some other session-router raced us for it.
+            ifaddrs* ia;
+            if (0 != getifaddrs(&ia))
+                throw std::runtime_error{"Failed to query network addresses to check for duplicates"};
+
+            for (; ia; ia = ia->ifa_next)
+            {
+                if (ia->ifa_name == _info.ifname)
+                    continue;  // This is our own one that we just added
+
+                for (const auto& a : _info.addrs)
+                {
+                    if (auto* v4 = std::get_if<ipv4_net>(&a);
+                        v4 and ia->ifa_addr and ia->ifa_addr->sa_family == AF_INET)
+                    {
+                        ipv4 found4{reinterpret_cast<sockaddr_in*>(ia->ifa_addr)->sin_addr};
+                        if (v4->contains(found4))
+                            throw std::runtime_error{
+                                "TUN setup {} with address {} failed: found conflicting IP {} on network interface {}"_format(
+                                    _info.ifname, *v4, found4, ia->ifa_name)};
+                    }
+                    else if (auto* v6 = std::get_if<ipv6_net>(&a);
+                             v6 and ia->ifa_addr and ia->ifa_addr->sa_family == AF_INET6)
+                    {
+                        ipv6 found6{reinterpret_cast<sockaddr_in6*>(ia->ifa_addr)->sin6_addr};
+                        if (v6->contains(found6))
+                            throw std::runtime_error{
+                                "TUN setup {} @ {} failed: found conflicting IP {} on network interface {}"_format(
+                                    _info.ifname, *v6, found6, ia->ifa_name)};
+                    }
+                }
+            }
+            freeifaddrs(ia);
 
             // Bring up the tun device:
             {

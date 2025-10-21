@@ -514,6 +514,17 @@ namespace srouter
 
             if (!(netconf._local_ip_net && netconf._local_ip_net->ip.addr))
             {
+                // If we are running as a service node *and* don't have an explicit local ip range
+                // set, then we introduce a small random delay here in startup, to help avoid cases
+                // where multiple session-routers start at the same time (e.g. in a multi-SN setup)
+                // and race to assign the same "free" IP range on the tun device, but end up with
+                // duplicate ranges on multiple tun devices.  We detect (and abort startup) if that
+                // happens, but the extra sleep here spaces them out to lower the chance of hitting
+                // that.
+                if (is_service_node)
+                    std::this_thread::sleep_for(
+                        uniform_duration_distribution<std::chrono::nanoseconds>{0ms, 25ms}(csrng));
+
                 if (auto maybe = net()->find_free_ipv4_net(netconf._local_ip_net ? netconf._local_ip_net->mask : 16))
                     netconf._local_ip_net = std::move(*maybe);
                 else
