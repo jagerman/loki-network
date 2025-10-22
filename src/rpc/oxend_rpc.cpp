@@ -81,7 +81,7 @@ namespace srouter::rpc
             return;               // update already in progress
         }
 
-        nlohmann::json req{{"fields", {"pubkey_ed25519", "block_hash", "session_router_version"}}};
+        nlohmann::json req{{"fields", {"pubkey_ed25519", "block_hash", "service_node_version"}}};
         if (!_last_hash_update.empty())
             req["poll_block_hash"] = _last_hash_update;
 
@@ -204,16 +204,19 @@ namespace srouter::rpc
             }
 
             // Transition mechanism for Oxen 11.6 where Session Router is not yet required for
-            // service nodes: we only consider a node registered if has reported a
-            // session_router_version.
+            // service nodes: we only consider a node registered for Session Router purposes if has
+            // send a 11.6+ uptime proof.
             //
             // TODO: remove this once we are past the session-router-is-required-now oxend mandatory
             // upgrade.
-            auto srv_it = snode.find("session_router_version");
-            if (srv_it == snode.end() || srv_it->get<std::array<int, 3>>() < std::array{1, 0, 0})
+            //
+            // TODO 2: also remove the don't-report-error-state code in router/router.cpp
+            // (Router::OxendErrorState) once we are past that upgrade.
+            auto srv_it = snode.find("service_node_version");
+            if (srv_it == snode.end() || srv_it->get<std::array<int, 3>>() < std::array{11, 6, 0})
             {
                 log::debug(
-                    logcat, "Ignoring {} registration: uptime proof does not include a Session Router version", rid);
+                    logcat, "Ignoring {} registration: uptime proof version does not require Session Router", rid);
                 continue;
             }
 

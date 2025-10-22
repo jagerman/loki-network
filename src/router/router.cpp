@@ -724,8 +724,15 @@ namespace srouter
     {
         // If we're in the registered list then we *should* be establishing connections to other
         // routers, so if we have almost no peers then something is almost certainly wrong.
+        //
+        // FIXME - this is disabled during Session Router optional transition so that new nodes that
+        // can't yet connect to other network nodes don't prevent oxend from sending proofs.
+        // TODO: uncomment this again once Session Router is mandatory (and the mandatory HF is live
+        // on the network).
+        /*
         if (insufficient_peers() and not _config.oxend.disable_testing)
             return "too few peer connections; Session Router is not adequately connected to the network";
+        */
         return std::nullopt;
     }
 
